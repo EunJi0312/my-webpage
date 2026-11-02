@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>조선 시대 연표</title>
+<style>
+:root{--paper:#efe3c8;--paper2:#f7efdb;--ink:#3a2a1c;--mute:#7b6850;--line:#8a6b45;--seal:#a3302a;--teal:#2f6b5e;--gold:#b8892f;--easy:#e3ecd9;--mid:#e4e6ee;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#211a12;--paper2:#2d241a;--ink:#efe2c6;--mute:#b2a07f;--line:#a98a58;--seal:#d4584d;--teal:#5fb09c;--gold:#d9a94a;--easy:#2a3626;--mid:#262b3a}}
+:root[data-theme="dark"]{--paper:#211a12;--paper2:#2d241a;--ink:#efe2c6;--mute:#b2a07f;--line:#a98a58;--seal:#d4584d;--teal:#5fb09c;--gold:#d9a94a;--easy:#2a3626;--mid:#262b3a}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;color:var(--ink);font-family:"Noto Serif KR","Nanum Myeongjo","Batang","AppleMyungjo",serif;background-color:var(--paper);background-image:radial-gradient(circle at 20% 10%,rgba(160,120,60,.12),transparent 40%),radial-gradient(circle at 80% 70%,rgba(120,80,40,.1),transparent 45%),repeating-linear-gradient(0deg,rgba(120,90,50,.05) 0 1px,transparent 1px 4px)}
+header{text-align:center;padding:14px 16px 2px}
+.ttl{display:inline-block;border-top:3px double var(--line);border-bottom:3px double var(--line);padding:6px 28px}
+h1{margin:0;font-size:clamp(24px,5vw,36px);letter-spacing:.2em;font-weight:900}
+header p{margin:6px 0 0;font-size:14px;color:var(--mute)}
+.tabs{display:flex;gap:10px;justify-content:center;margin:10px 0 4px}
+.tabs button{font-family:inherit;border:2px solid var(--line);background:var(--paper2);color:var(--ink);padding:8px 20px;font-size:15px;cursor:pointer;border-radius:2px;font-weight:700}
+.tabs button.on{background:var(--seal);border-color:var(--seal);color:#fff8e8}
+.note{text-align:center;font-size:12px;color:var(--mute);margin:6px 0 0}
+#wrap{position:relative;max-width:960px;margin:4px auto 70px}
+#axis{position:absolute;top:30px;width:4px;margin-left:-2px;background:linear-gradient(var(--line),var(--teal),var(--line));border-radius:2px}
+.tick{position:absolute;transform:translate(-50%,-50%);font-size:10px;color:var(--mute);background:var(--paper);padding:0 3px;line-height:1.2;white-space:nowrap}
+.node{position:absolute;width:18px;height:18px;margin:-9px 0 0 -9px;transform:rotate(45deg);background:var(--paper2);border:3px solid var(--line);transition:all .4s;z-index:2}
+.node.sel{background:var(--seal);border-color:var(--gold);transform:rotate(45deg) scale(1.55);box-shadow:0 0 0 6px rgba(184,137,47,.3)}
+svg{position:absolute;left:0;top:0;pointer-events:none;overflow:visible}
+svg line{stroke:var(--line);stroke-width:1.5;stroke-dasharray:3 3}
+.card{position:absolute;height:52px;display:flex;align-items:center;gap:12px;padding:0 14px;background:var(--paper2);border:1.5px solid var(--line);outline:1px solid var(--line);outline-offset:-5px;color:var(--ink);font-family:inherit;text-align:left;cursor:pointer;transition:transform .35s,box-shadow .35s,background .35s;animation:in .5s both}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card.R{flex-direction:row}.card.L{flex-direction:row-reverse;text-align:right}
+.card:hover{box-shadow:0 3px 10px rgba(60,40,10,.25)}
+.card .seal{flex:none;min-width:52px;padding:5px 6px;background:var(--seal);color:#fff8e8;font-weight:900;font-size:15px;text-align:center;border-radius:2px;line-height:1.15}
+.card .nm{font-weight:700;font-size:15px;line-height:1.3}
+.card.sel{background:var(--seal);border-color:var(--gold);outline-color:var(--gold);color:#fff8e8;transform:scale(1.04);box-shadow:0 6px 18px rgba(80,20,10,.4);z-index:3}
+.card.sel .seal{background:#fff8e8;color:var(--seal)}
+.nav{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;z-index:10}
+.nav button{width:46px;height:46px;border:2px solid var(--line);background:var(--paper2);color:var(--ink);font-size:17px;cursor:pointer;border-radius:50%}
+.nav button:disabled{opacity:.35}
+.ov{position:fixed;inset:0;background:rgba(30,18,6,.6);display:none;align-items:center;justify-content:center;padding:16px;z-index:20}
+.ov.open{display:flex}
+.modal{position:relative;max-width:540px;width:100%;max-height:88vh;overflow:auto;background:var(--paper2);border:3px double var(--line);padding:26px 24px 20px;animation:in .3s both}
+.modal .yr{display:inline-block;background:var(--seal);color:#fff8e8;padding:4px 14px;font-weight:900;font-size:16px}
+.modal h2{margin:12px 0 14px;font-size:26px;border-bottom:1px solid var(--line);padding-bottom:10px}
+.box{padding:12px 15px;margin-bottom:12px;line-height:1.75;font-size:15px;border-left:5px solid var(--teal)}
+.box b{display:block;font-size:13px;color:var(--mute);margin-bottom:3px}
+.box.easy{background:var(--easy)}.box.mid{background:var(--mid);border-left-color:var(--gold)}
+.x{position:absolute;top:8px;right:12px;border:0;background:none;font-size:28px;color:var(--mute);cursor:pointer}
+.mn{display:flex;justify-content:space-between}
+.mn button{font-family:inherit;border:1.5px solid var(--line);background:none;color:var(--ink);padding:7px 14px;cursor:pointer}
+.mn button:disabled{opacity:.3}
+@media (max-width:520px){.card{padding:0 10px;gap:8px}.card .nm{font-size:14px}.card .seal{min-width:46px;font-size:13px}.modal{padding:22px 16px 16px}.box{font-size:14px}.tabs button{padding:8px 12px;font-size:14px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header>
+<div class="ttl"><h1>조선 연표</h1></div>
+<p>조선 건국부터 대한제국까지, 500년의 흐름</p>
+</header>
+<div class="tabs" id="tabs">
+<button data-s="1" class="on">1단계 · 6개 사건</button>
+<button data-s="2">2단계 · 10개 사건</button>
+</div>
+<p class="note">사건 사이의 간격은 실제 연도 차이에 비례해요 (눈금 50년)</p>
+<div id="wrap"><div id="axis"></div><svg id="sv"></svg></div>
+<div class="nav"><button id="up" aria-label="이전 사건">▲</button><button id="dn" aria-label="다음 사건">▼</button></div>
+<div class="ov" id="ov"><div class="modal" role="dialog" aria-modal="true" id="md"></div></div>
+<script>
+const E=[
+{y:1392,n:"조선 건국",s:1,e:"이성계 장군이 고려를 대신해 새 나라 ‘조선’을 세웠어요. 이 나라는 500년 넘게 이어졌답니다.",m:"고려 말에는 권문세족의 횡포와 외적의 침입으로 사회가 혼란스러웠습니다. 이성계는 홍건적과 왜구를 물리치며 명성을 얻었고, 1388년 위화도 회군으로 권력을 잡았습니다. 정도전 같은 신진 사대부의 지지를 받아 1392년 왕위에 올라 조선을 세웠고, 1394년 도읍을 한양(지금의 서울)으로 옮겼습니다. 조선은 유교를 통치 이념으로 삼아 『경국대전』 등 법과 제도를 갖추며 500여 년 이어진 나라의 기틀을 닦았습니다."},
+{y:1418,n:"세종대왕 즉위",s:1,e:"세종대왕이 임금이 되었어요. 백성을 아끼고 똑똑한 신하들과 함께 좋은 일을 많이 한 임금이에요.",m:"1418년 태종이 왕위를 물려주어 세종이 20대 초반의 나이로 즉위했습니다. 세종은 집현전을 설치해 젊은 학자들을 키우고 함께 정치와 학문을 발전시켰습니다. 농사 기술을 정리한 『농사직설』 편찬, 측우기·자격루·앙부일구 같은 과학 기구 제작, 장영실 등 신분을 가리지 않는 인재 등용이 대표적입니다. 또 북쪽에 4군 6진을 개척해 압록강과 두만강까지 국경을 넓혔고, 그래서 조선의 황금기를 이끈 왕으로 평가받습니다."},
+{y:1443,n:"한글 창제",s:1,e:"세종대왕이 누구나 쉽게 배울 수 있는 우리글 ‘한글’을 만들었어요. 말하는 소리를 그대로 글로 적을 수 있어요.",m:"세종은 우리말을 적을 글자가 없어서 백성들이 어려운 한자로는 자기 뜻을 쓰지 못하는 현실을 안타깝게 여겼습니다. 그래서 1443년 훈민정음 28자를 만들고 1446년에 널리 알렸습니다. 자음은 소리를 낼 때 입과 혀의 모양을 본떠, 모음은 하늘·땅·사람의 모양을 본떠 만든 과학적인 문자입니다. 처음에는 일부 양반들의 반대도 있었지만 점차 백성들 사이에 퍼졌고, 훈민정음 해례본은 유네스코 세계기록유산에 등재되었습니다."},
+{y:1592,n:"임진왜란",s:1,e:"일본이 우리나라에 쳐들어왔어요. 이순신 장군과 의병들이 힘을 모아 나라를 지켰어요.",m:"1592년 일본의 도요토미 히데요시가 조선을 침략하면서 임진왜란이 시작되었습니다. 준비가 부족했던 조선은 초반에 한양과 평양을 빼앗겼고 선조는 의주까지 피란을 떠났습니다. 하지만 이순신이 이끄는 수군이 옥포·한산도 등에서 승리해 바닷길을 막았고, 곽재우·김천일 같은 의병이 곳곳에서 일어났으며 권율은 행주대첩에서 크게 이겼습니다. 명나라의 지원군도 가세했고, 7년에 걸친 전쟁은 1598년 노량해전과 일본군의 철수로 끝났습니다. 이 전쟁으로 많은 사람이 목숨을 잃고 농토와 문화재가 파괴되어 조선 사회는 큰 변화를 겪었습니다."},
+{y:1636,n:"병자호란",s:1,e:"청나라가 우리나라에 쳐들어왔어요. 임금님이 남한산성에 피했지만 결국 항복해야 했어요.",m:"17세기 초 명나라가 약해지고 후금이 강해져 청나라를 세웠습니다. 조선은 명나라와의 의리를 중시해 청의 요구를 받아들이지 않았고, 1636년 청 태종이 직접 군대를 이끌고 쳐들어왔습니다. 인조는 남한산성에서 한 달 넘게 버텼지만 식량이 떨어지고 강화도마저 함락되자 1637년 삼전도에서 항복했습니다. 이후 소현세자와 봉림대군을 비롯해 많은 백성이 청으로 끌려갔고, 조선에서는 청에 복수하자는 북벌 주장이 나오게 되었습니다."},
+{y:1724,n:"영조의 탕평책",s:2,e:"영조 임금은 편을 나눠 싸우던 신하들을 고르게 뽑아 함께 일하도록 했어요. 싸움을 줄여 나라를 평화롭게 하려는 거였어요.",m:"숙종 때부터 붕당 사이의 정권 다툼이 심해져 정치가 불안정했습니다. 1724년 즉위한 영조는 노론·소론 등 여러 붕당에서 인재를 고르게 뽑는 탕평책으로 왕권을 안정시키려 했고, 성균관 앞에 탕평비를 세워 뜻을 밝혔습니다. 또 군대에 가는 대신 내는 베를 2필에서 1필로 줄인 균역법을 시행해 백성의 부담을 덜었고, 청계천을 정비하는 등 민생도 살폈습니다. 다만 탕평책이 붕당 갈등을 완전히 없애지는 못했고, 이후 사도세자 사건 같은 비극도 일어났습니다."},
+{y:1794,n:"수원 화성 축조",s:2,e:"정조 임금이 수원에 튼튼하고 아름다운 성을 쌓기 시작했어요. 무거운 돌을 쉽게 들어 올리는 기계도 사용했어요.",m:"정조는 아버지 사도세자의 묘를 수원으로 옮기고, 수원을 개혁 정치의 중심이 될 새 도시로 키우려 했습니다. 1794년 공사를 시작해 1796년에 완성했고, 정약용이 설계와 기술을 맡아 거중기·녹로 같은 기계로 공사 기간과 비용을 크게 줄였습니다. 돌과 벽돌을 함께 쓰고 공심돈·포루 같은 방어 시설과 팔달문 등 성문을 갖춘 과학적이고 아름다운 성입니다. 건설 과정은 『화성성역의궤』에 자세히 기록되었으며, 1997년 유네스코 세계유산으로 등재되었습니다."},
+{y:1866,n:"병인양요",s:2,e:"프랑스 군함이 강화도에 쳐들어왔어요. 우리 군사들이 용감하게 싸워 물리쳤어요.",m:"흥선대원군은 어린 고종을 대신해 정치를 맡으며 서양과의 교류를 막고 있었습니다. 그러던 중 천주교가 퍼지자 1866년 프랑스 선교사와 신자들을 처형하는 병인박해가 일어났고, 프랑스 함대가 이를 구실로 강화도를 침략해 강화읍을 점령했습니다. 양헌수 부대가 정족산성 전투에서 승리하자 프랑스군은 물러났지만, 이때 외규장각의 의궤 등 소중한 문화재를 약탈해 갔습니다(의궤는 2011년 대여 형식으로 돌아왔습니다). 이 사건 이후 대원군은 문을 닫고 교류를 거부하는 정책을 더욱 강화했습니다."},
+{y:1894,n:"동학농민운동",s:2,e:"농민들이 나쁜 관리들 때문에 힘들어 하다 함께 일어났어요. 모두가 더 잘 살 수 있는 세상을 바랐어요.",m:"19세기 후반 관리들의 수탈로 농민의 삶이 어려워졌고, 최제우가 만든 동학이 ‘사람이 곧 하늘’이라는 평등 사상으로 널리 퍼졌습니다. 1894년 고부 군수 조병갑의 횡포에 분노한 농민들이 전봉준을 중심으로 봉기해 전주성까지 차지했고, 정부와 화약을 맺어 폐정 개혁을 약속받았습니다. 그러나 청과 일본 군대가 들어와 청일전쟁이 벌어졌고, 일본의 간섭이 심해지자 농민군이 다시 일어났지만 우금치 전투에서 근대 무기 앞에 패배했습니다. 비록 실패했지만 갑오개혁에 영향을 주었고 반봉건·반외세 운동으로 평가받습니다."},
+{y:1897,n:"대한제국 선포",s:1,e:"고종 임금이 나라 이름을 ‘대한제국’으로 바꾸고 황제가 되었어요. 우리나라가 스스로 힘 있는 나라임을 세계에 알리려 했어요.",m:"1895년 을미사변으로 신변의 위협을 느낀 고종은 1896년 러시아 공사관으로 피신했습니다(아관파천). 환궁을 요구하는 여론이 커지자 1897년 경운궁(지금의 덕수궁)으로 돌아와 연호를 ‘광무’, 나라 이름을 ‘대한제국’으로 정하고 황제에 올랐습니다. 이는 어느 나라의 속국도 아닌 자주독립 국가임을 안팎에 알리는 일이었습니다. 대한제국은 광무개혁으로 토지 조사, 철도·전차·전기 등 근대 시설 도입, 상공업 육성을 추진했습니다. 그러나 열강의 압박 속에 1905년 을사늑약으로 외교권을 빼앗겼고 1910년 국권을 잃었습니다."}
+];
+const Y0=1392,PX=1.8,TOP=46,GAP=58,CH=52;
+const yy=y=>TOP+(y-Y0)*PX;
+let stage=1,list=[],cur=0;
+const wrap=document.getElementById('wrap'),axis=document.getElementById('axis'),sv=document.getElementById('sv'),ov=document.getElementById('ov'),md=document.getElementById('md');
+function build(){
+ list=E.filter(x=>x.s<=stage);cur=0;
+ wrap.querySelectorAll('.node,.card,.tick').forEach(n=>n.remove());
+ for(let t=1400;t<=1850;t+=50){const d=document.createElement('div');d.className='tick';d.textContent=t;d.dataset.y=t;wrap.appendChild(d)}
+ list.forEach((x,i)=>{
+  const nd=document.createElement('div');nd.className='node';wrap.appendChild(nd);
+  const c=document.createElement('button');c.className='card';c.style.animationDelay=i*60+'ms';
+  c.innerHTML=`<span class="seal">${x.y}</span><span class="nm">${x.n}</span>`;
+  c.onclick=()=>{select(i);openM(i)};
+  wrap.appendChild(c);
+ });
+ layout();select(0,false);
+}
+function layout(){
+ const w=wrap.clientWidth,mob=w<700,ax=mob?30:w/2,last={L:-1e9,R:-1e9};
+ let maxY=yy(1897);
+ axis.style.left=ax+'px';axis.style.height=(yy(1897)-30+50)+'px';
+ wrap.querySelectorAll('.tick').forEach(t=>{t.style.left=ax+'px';t.style.top=yy(+t.dataset.y)+'px'});
+ const nodes=wrap.querySelectorAll('.node'),cards=wrap.querySelectorAll('.card');
+ let lines='';
+ list.forEach((x,i)=>{
+  const side=mob?'R':(i%2?'R':'L'),ny=yy(x.y),ly=Math.max(ny,last[side]+GAP);last[side]=ly;maxY=Math.max(maxY,ly);
+  nodes[i].style.left=ax+'px';nodes[i].style.top=ny+'px';
+  const c=cards[i];c.className='card '+side+(i===cur?' sel':'');c.style.top=(ly-CH/2)+'px';
+  const cw=mob?w-ax-50:ax-56;
+  c.style.width=Math.min(cw,430)+'px';
+  if(side==='R'){c.style.left=(ax+46)+'px';c.style.right='auto'}else{c.style.right=(w-ax+46)+'px';c.style.left='auto'}
+  const ex=side==='R'?ax+46:ax-46;
+  lines+=`<line x1="${ax}" y1="${ny}" x2="${ex}" y2="${ly}"/>`;
+ });
+ wrap.style.height=(maxY+60)+'px';
+ sv.setAttribute('width',w);sv.setAttribute('height',maxY+60);sv.innerHTML=lines;
+}
+function select(i,smooth=true){
+ cur=i;
+ wrap.querySelectorAll('.node').forEach((n,k)=>n.classList.toggle('sel',k===i));
+ wrap.querySelectorAll('.card').forEach((c,k)=>c.classList.toggle('sel',k===i));
+ const r=wrap.querySelectorAll('.node')[i].getBoundingClientRect();
+ window.scrollTo({top:window.scrollY+r.top-innerHeight/2,behavior:smooth?'smooth':'auto'});
+ document.getElementById('up').disabled=i===0;
+ document.getElementById('dn').disabled=i===list.length-1;
+}
+function openM(i){
+ const x=list[i];
+ md.innerHTML=`<button class="x" aria-label="닫기">×</button><span class="yr">${x.y}년</span><h2>${x.n}</h2>
+ <div class="box easy"><b>🌱 쉬운 설명 (초등학생)</b>${x.e}</div>
+ <div class="box mid"><b>📜 자세한 설명 (중학생)</b>${x.m}</div>
+ <div class="mn"><button id="mp" ${i===0?'disabled':''}>◀ 이전 사건</button><button id="mx" ${i===list.length-1?'disabled':''}>다음 사건 ▶</button></div>`;
+ ov.classList.add('open');
+ md.querySelector('.x').onclick=closeM;
+ md.querySelector('#mp').onclick=()=>{select(cur-1);openM(cur)};
+ md.querySelector('#mx').onclick=()=>{select(cur+1);openM(cur)};
+}
+function closeM(){ov.classList.remove('open')}
+ov.onclick=e=>{if(e.target===ov)closeM()};
+document.getElementById('up').onclick=()=>cur>0&&select(cur-1);
+document.getElementById('dn').onclick=()=>cur<list.length-1&&select(cur+1);
+document.getElementById('tabs').onclick=e=>{
+ const b=e.target.closest('button');if(!b)return;
+ stage=+b.dataset.s;[...e.currentTarget.children].forEach(c=>c.classList.toggle('on',c===b));
+ closeM();build();
+};
+addEventListener('resize',layout);
+document.addEventListener('keydown',e=>{
+ const open=ov.classList.contains('open');
+ if(e.key==='Escape')closeM();
+ else if((e.key==='ArrowDown'||e.key==='ArrowRight')&&cur<list.length-1){e.preventDefault();select(cur+1);if(open)openM(cur)}
+ else if((e.key==='ArrowUp'||e.key==='ArrowLeft')&&cur>0){e.preventDefault();select(cur-1);if(open)openM(cur)}
+ else if(e.key==='Enter'&&!open)openM(cur);
+});
+build();
+</script>
+</body>
+</html>
