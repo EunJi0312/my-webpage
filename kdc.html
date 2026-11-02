@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KDC 십진분류법 암기 게임 📚</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts (Jua / Gaegu) -->
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        body {
+            font-family: 'Jua', sans-serif;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            user-select: none;
+            overflow-x: hidden;
+        }
+        html {
+            height: -webkit-fill-available;
+        }
+        
+        /* 3D Flip Card Animation Styles */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        
+        /* Custom Button & Card Shadows */
+        .card-shadow {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        .btn-bounce:active {
+            transform: scale(0.95);
+        }
+
+        /* Match Animation */
+        @keyframes popSuccess {
+            0% { transform: scale(1) rotateY(180deg); }
+            50% { transform: scale(1.1) rotateY(180deg); }
+            100% { transform: scale(1) rotateY(180deg); }
+        }
+        .matched-anim {
+            animation: popSuccess 0.4s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-between p-3 sm:p-5 min-h-screen text-gray-800">
+
+    <!-- Top Header & Dashboard -->
+    <header class="w-full max-w-md sm:max-w-2xl text-center mb-1 sm:mb-2">
+        <div class="flex items-center justify-between mb-2 px-1">
+            <h1 class="text-xl sm:text-3xl text-indigo-700 drop-shadow-md flex items-center gap-1.5 sm:gap-2">
+                📚 KDC 십진분류 짝 맞추기
+            </h1>
+            <!-- Sound Toggle Button -->
+            <button id="soundToggleBtn" onclick="toggleSound()" class="btn-bounce bg-white/80 hover:bg-white text-gray-700 p-2 sm:p-2.5 rounded-2xl shadow-md border-2 border-indigo-300 flex items-center justify-center transition-all">
+                <span id="soundIcon" class="text-lg sm:text-2xl">🔊</span>
+            </button>
+        </div>
+
+        <!-- Scoreboard Panel -->
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-2 sm:p-4 shadow-lg border-2 sm:border-4 border-indigo-200 grid grid-cols-4 gap-1.5 sm:gap-2 text-center text-xs sm:text-base">
+            <div class="bg-indigo-50 p-1.5 sm:p-2 rounded-xl sm:rounded-2xl border border-indigo-200">
+                <p class="text-[10px] sm:text-xs text-indigo-600 font-bold mb-0.5">점수</p>
+                <p id="score" class="text-base sm:text-2xl font-black text-indigo-700">0</p>
+            </div>
+            <div class="bg-blue-50 p-1.5 sm:p-2 rounded-xl sm:rounded-2xl border border-blue-200">
+                <p class="text-[10px] sm:text-xs text-blue-600 font-bold mb-0.5">시간</p>
+                <p id="timer" class="text-base sm:text-2xl font-black text-blue-700">00:00</p>
+            </div>
+            <div class="bg-purple-50 p-1.5 sm:p-2 rounded-xl sm:rounded-2xl border border-purple-200">
+                <p class="text-[10px] sm:text-xs text-purple-600 font-bold mb-0.5">시도</p>
+                <p id="moves" class="text-base sm:text-2xl font-black text-purple-700">0</p>
+            </div>
+            <div class="bg-emerald-50 p-1.5 sm:p-2 rounded-xl sm:rounded-2xl border border-emerald-200">
+                <p class="text-[10px] sm:text-xs text-emerald-600 font-bold mb-0.5">남은 짝</p>
+                <p id="pairsLeft" class="text-base sm:text-2xl font-black text-emerald-700">10</p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Game Board Grid (Responsive 4 or 5 columns for 20 cards) -->
+    <main class="w-full max-w-md sm:max-w-2xl my-auto flex items-center justify-center">
+        <div id="gameBoard" class="w-full grid grid-cols-4 sm:grid-cols-5 gap-2 sm:gap-3 p-2 sm:p-4 bg-white/50 backdrop-blur-md rounded-2xl sm:rounded-3xl border-2 sm:border-4 border-white shadow-xl">
+            <!-- Cards generated dynamically via JavaScript -->
+        </div>
+    </main>
+
+    <!-- Bottom Controls -->
+    <footer class="w-full max-w-md sm:max-w-2xl text-center mt-1 sm:mt-3">
+        <div class="flex justify-center items-center gap-4">
+            <button onclick="restartGame()" class="btn-bounce bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-base sm:text-xl px-5 sm:px-8 py-2 sm:py-3 rounded-full shadow-lg border-2 border-white transition-all transform hover:-translate-y-0.5">
+                🔄 다시 시작
+            </button>
+        </div>
+        <p class="text-[10px] sm:text-xs text-gray-700 mt-1.5">KDC 분류기호(예: 300)와 분류명(예: 사회과학)의 짝을 찾아 맞춰보세요!</p>
+    </footer>
+
+    <!-- Victory Modal Popup -->
+    <div id="victoryModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-3xl p-5 sm:p-8 text-center max-w-xs sm:max-w-sm w-full shadow-2xl border-4 border-indigo-300 transform transition-all scale-90 opacity-0" id="modalCard">
+            <div class="text-5xl sm:text-6xl mb-2 sm:mb-3 animate-bounce">🎓</div>
+            <h2 class="text-2xl sm:text-3xl font-black text-indigo-600 mb-1 sm:mb-2">KDC 마스터 달성!</h2>
+            <p class="text-gray-600 mb-4 sm:mb-6 text-xs sm:text-base">10가지 한국십진분류법 주류를 모두 완성했습니다!</p>
+            
+            <div class="bg-amber-50 rounded-2xl p-3 sm:p-4 mb-5 sm:mb-6 border border-amber-200 text-left space-y-1.5 sm:space-y-2 text-xs sm:text-lg">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">최종 점수:</span>
+                    <span id="finalScore" class="font-black text-amber-600 text-sm sm:text-xl">0점</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">소요 시간:</span>
+                    <span id="finalTime" class="font-black text-blue-600 text-sm sm:text-xl">00:00</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">시도 횟수:</span>
+                    <span id="finalMoves" class="font-black text-purple-600 text-sm sm:text-xl">0회</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-600">최대 콤보:</span>
+                    <span id="finalCombo" class="font-black text-emerald-600 text-sm sm:text-xl">0회</span>
+                </div>
+            </div>
+
+            <button onclick="restartGame()" class="btn-bounce w-full bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white text-base sm:text-xl py-2.5 sm:py-3 rounded-2xl shadow-lg border-2 border-white transition-all">
+                🎉 한번 더 하기
+            </button>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic & Web Audio API -->
+    <script>
+        // KDC Data Specification (10 pairs)
+        const KDC_DATA = [
+            { code: '000', name: '총류' },
+            { code: '100', name: '철학' },
+            { code: '200', name: '종교' },
+            { code: '300', name: '사회과학' },
+            { code: '400', name: '자연과학' },
+            { code: '500', name: '기술과학' },
+            { code: '600', name: '예술' },
+            { code: '700', name: '언어' },
+            { code: '800', name: '문학' },
+            { code: '900', name: '역사' }
+        ];
+
+        const TOTAL_PAIRS = KDC_DATA.length;
+
+        // Game State Variables
+        let cards = [];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let score = 0;
+        let moves = 0;
+        let combo = 0;
+        let maxCombo = 0;
+        let isBoardLocked = false;
+        let timerInterval = null;
+        let secondsElapsed = 0;
+        let isSoundOn = true;
+
+        // Web Audio Context
+        let audioCtx = null;
+
+        function initAudioContext() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Web Audio API Sound Effects
+        function playSound(type) {
+            if (!isSoundOn) return;
+            initAudioContext();
+            if (!audioCtx) return;
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'flip') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.08);
+                
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.08);
+
+            } else if (type === 'match') {
+                const freqs = [523.25, 659.25, 783.99, 1046.50];
+                freqs.forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    const startTime = now + (idx * 0.06);
+
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, startTime);
+
+                    gain.gain.setValueAtTime(0.5, startTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.25);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(startTime);
+                    osc.stop(startTime + 0.25);
+                });
+
+                playClapSound(now + 0.05, 10 + Math.min(combo * 3, 12), 0.95);
+                playCheerSound(now + 0.08, 0.85);
+                playWhistleSound(now + 0.05, false);
+
+            } else if (type === 'mismatch') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.exponentialRampToValueAtTime(130, now + 0.2);
+
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.2);
+
+            } else if (type === 'victory') {
+                const notes = [
+                    { freq: 523.25, dur: 0.18 },
+                    { freq: 659.25, dur: 0.18 },
+                    { freq: 783.99, dur: 0.18 },
+                    { freq: 1046.50, dur: 0.6 }
+                ];
+                let timeOffset = 0;
+                notes.forEach((note) => {
+                    [1, 1.5].forEach(multiplier => {
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        const startTime = now + timeOffset;
+
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(note.freq * multiplier, startTime);
+
+                        gain.gain.setValueAtTime(0.6, startTime);
+                        gain.gain.exponentialRampToValueAtTime(0.001, startTime + note.dur);
+
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        osc.start(startTime);
+                        osc.stop(startTime + note.dur);
+                    });
+
+                    timeOffset += note.dur * 0.75;
+                });
+
+                playBigCrowdApplause(now);
+                playCheerSound(now + 0.1, 1.0, true);
+                playCheerSound(now + 0.4, 0.95, true);
+                playWhistleSound(now + 0.1, true);
+                playWhistleSound(now + 0.6, true);
+            }
+        }
+
+        // Synthesize Whistle Sound
+        function playWhistleSound(startTime, isVictory = false) {
+            if (!audioCtx) return;
+
+            if (!isVictory) {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1500, startTime);
+                osc.frequency.exponentialRampToValueAtTime(2400, startTime + 0.15);
+                osc.frequency.linearRampToValueAtTime(2000, startTime + 0.25);
+
+                const lfo = audioCtx.createOscillator();
+                const lfoGain = audioCtx.createGain();
+                lfo.frequency.setValueAtTime(25, startTime);
+                lfoGain.gain.setValueAtTime(40, startTime);
+                lfo.connect(osc.frequency);
+                lfo.start(startTime);
+                lfo.stop(startTime + 0.28);
+
+                gain.gain.setValueAtTime(0.01, startTime);
+                gain.gain.linearRampToValueAtTime(0.4, startTime + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.28);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(startTime);
+                osc.stop(startTime + 0.28);
+            } else {
+                const whistleNotes = [
+                    { startF: 1600, endF: 2200, delay: 0, dur: 0.2 },
+                    { startF: 2100, endF: 2800, delay: 0.22, dur: 0.35 }
+                ];
+
+                whistleNotes.forEach(note => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    const t = startTime + note.delay;
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(note.startF, t);
+                    osc.frequency.exponentialRampToValueAtTime(note.endF, t + (note.dur * 0.7));
+
+                    const lfo = audioCtx.createOscillator();
+                    const lfoGain = audioCtx.createGain();
+                    lfo.frequency.setValueAtTime(30, t);
+                    lfoGain.gain.setValueAtTime(60, t);
+                    lfo.connect(osc.frequency);
+                    lfo.start(t);
+                    lfo.stop(t + note.dur);
+
+                    gain.gain.setValueAtTime(0.01, t);
+                    gain.gain.linearRampToValueAtTime(0.5, t + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.001, t + note.dur);
+
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+
+                    osc.start(t);
+                    osc.stop(t + note.dur);
+                });
+            }
+        }
+
+        // Generate Clapping Sound
+        function playClapSound(startTime, clapCount = 8, volumeScale = 0.8) {
+            if (!audioCtx) return;
+
+            const bufferSize = audioCtx.sampleRate * 0.06;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+
+            for (let c = 0; c < clapCount; c++) {
+                const clapTime = startTime + (c * 0.035) + (Math.random() * 0.015);
+
+                const noiseSource = audioCtx.createBufferSource();
+                noiseSource.buffer = buffer;
+
+                const filter = audioCtx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(1100 + Math.random() * 700, clapTime);
+                filter.Q.setValueAtTime(1.5, clapTime);
+
+                const gain = audioCtx.createGain();
+                const peakVol = (0.6 + Math.random() * 0.3) * volumeScale;
+                gain.gain.setValueAtTime(peakVol, clapTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, clapTime + 0.05);
+
+                noiseSource.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                noiseSource.start(clapTime);
+                noiseSource.stop(clapTime + 0.06);
+            }
+        }
+
+        // Synthesize Cheering Voice
+        function playCheerSound(startTime, volume = 0.8, isLong = false) {
+            if (!audioCtx) return;
+
+            const duration = isLong ? 1.4 : 0.6;
+            const cheerPitches = [
+                { startF: 400, endF: 650, vibrato: 12 }, 
+                { startF: 520, endF: 800, vibrato: 15 },
+                { startF: 320, endF: 500, vibrato: 8 }
+            ];
+
+            cheerPitches.forEach((pitch, idx) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const filter = audioCtx.createBiquadFilter();
+
+                osc.type = idx % 2 === 0 ? 'sawtooth' : 'sine';
+
+                const cheerStart = startTime + (idx * 0.03);
+                osc.frequency.setValueAtTime(pitch.startF, cheerStart);
+                osc.frequency.exponentialRampToValueAtTime(pitch.endF, cheerStart + (duration * 0.4));
+                osc.frequency.linearRampToValueAtTime(pitch.startF * 1.1, cheerStart + duration);
+
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(1200 + (idx * 250), cheerStart);
+                filter.Q.setValueAtTime(2.0, cheerStart);
+
+                gain.gain.setValueAtTime(0.01, cheerStart);
+                gain.gain.linearRampToValueAtTime(volume * 0.4, cheerStart + 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.001, cheerStart + duration);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start(cheerStart);
+                osc.stop(cheerStart + duration);
+            });
+        }
+
+        // Synthesize Massive Crowd Applause
+        function playBigCrowdApplause(startTime) {
+            if (!audioCtx) return;
+
+            const totalDuration = 2.8;
+            const clapDensity = 60;
+
+            for (let i = 0; i < clapDensity; i++) {
+                const randTime = startTime + (Math.random() * totalDuration);
+                playClapSound(randTime, 1, 0.9);
+            }
+
+            const noiseLen = audioCtx.sampleRate * 2.8;
+            const noiseBuf = audioCtx.createBuffer(1, noiseLen, audioCtx.sampleRate);
+            const output = noiseBuf.getChannelData(0);
+            for (let i = 0; i < noiseLen; i++) {
+                output[i] = Math.random() * 2 - 1;
+            }
+
+            const noiseNode = audioCtx.createBufferSource();
+            noiseNode.buffer = noiseBuf;
+
+            const bandpass = audioCtx.createBiquadFilter();
+            bandpass.type = 'bandpass';
+            bandpass.frequency.setValueAtTime(1350, startTime);
+            bandpass.Q.setValueAtTime(0.7, startTime);
+
+            const gainNode = audioCtx.createGain();
+            gainNode.gain.setValueAtTime(0.01, startTime);
+            gainNode.gain.linearRampToValueAtTime(0.55, startTime + 0.3);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + 2.7);
+
+            noiseNode.connect(bandpass);
+            bandpass.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            noiseNode.start(startTime);
+            noiseNode.stop(startTime + 2.7);
+        }
+
+        function toggleSound() {
+            isSoundOn = !isSoundOn;
+            const icon = document.getElementById('soundIcon');
+            icon.textContent = isSoundOn ? '🔊' : '🔇';
+        }
+
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function startTimer() {
+            stopTimer();
+            secondsElapsed = 0;
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function updateTimerDisplay() {
+            const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+            const secs = String(secondsElapsed % 60).padStart(2, '0');
+            document.getElementById('timer').textContent = `${mins}:${secs}`;
+        }
+
+        function initGame() {
+            stopTimer();
+            
+            let rawCards = [];
+            KDC_DATA.forEach((item, id) => {
+                rawCards.push({ id, type: 'code', text: item.code, pairId: id });
+                rawCards.push({ id, type: 'name', text: item.name, pairId: id });
+            });
+
+            cards = shuffle(rawCards);
+            flippedCards = [];
+            matchedPairs = 0;
+            score = 0;
+            moves = 0;
+            combo = 0;
+            maxCombo = 0;
+            isBoardLocked = false;
+
+            updateScoreboard();
+            renderBoard();
+            closeModal();
+            startTimer();
+        }
+
+        function updateScoreboard() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('moves').textContent = moves;
+            document.getElementById('pairsLeft').textContent = TOTAL_PAIRS - matchedPairs;
+        }
+
+        function renderBoard() {
+            const board = document.getElementById('gameBoard');
+            board.innerHTML = '';
+
+            cards.forEach((card, index) => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'perspective-1000 aspect-square cursor-pointer active:scale-95 transition-transform';
+                cardEl.dataset.index = index;
+                cardEl.dataset.pairId = card.pairId;
+
+                const isCode = card.type === 'code';
+                const bgStyle = isCode 
+                    ? 'bg-gradient-to-br from-indigo-50 to-blue-100 border-indigo-400 text-indigo-900' 
+                    : 'bg-gradient-to-br from-purple-50 to-pink-100 border-purple-400 text-purple-900';
+
+                cardEl.innerHTML = `
+                    <div class="card-inner relative w-full h-full transform-style-3d transition-transform duration-500 rounded-xl sm:rounded-2xl card-shadow">
+                        <!-- Card Back -->
+                        <div class="card-back absolute inset-0 bg-gradient-to-br from-indigo-400 to-purple-500 border-2 sm:border-3 border-white rounded-xl sm:rounded-2xl flex items-center justify-center backface-hidden shadow-inner">
+                            <span class="text-xl sm:text-3xl opacity-80 select-none">📚</span>
+                        </div>
+                        <!-- Card Front -->
+                        <div class="card-front absolute inset-0 ${bgStyle} border-2 sm:border-3 rounded-xl sm:rounded-2xl flex flex-col items-center justify-center rotate-y-180 backface-hidden shadow-md p-1">
+                            <span class="text-[9px] sm:text-sm text-gray-500 font-bold mb-0.5">${isCode ? '기호' : '분류'}</span>
+                            <span class="text-xs sm:text-xl font-black text-center break-keep leading-tight select-none">${card.text}</span>
+                        </div>
+                    </div>
+                `;
+
+                cardEl.addEventListener('click', () => handleCardClick(cardEl));
+                board.appendChild(cardEl);
+            });
+        }
+
+        function handleCardClick(cardEl) {
+            if (isBoardLocked) return;
+            const inner = cardEl.querySelector('.card-inner');
+
+            if (cardEl.classList.contains('flipped') || cardEl.classList.contains('matched')) {
+                return;
+            }
+
+            playSound('flip');
+            cardEl.classList.add('flipped');
+            inner.classList.add('rotate-y-180');
+            flippedCards.push(cardEl);
+
+            if (flippedCards.length === 2) {
+                moves++;
+                updateScoreboard();
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            isBoardLocked = true;
+            const [card1, card2] = flippedCards;
+            const isMatch = card1.dataset.pairId === card2.dataset.pairId;
+
+            if (isMatch) {
+                setTimeout(() => {
+                    playSound('match');
+                    card1.classList.add('matched');
+                    card2.classList.add('matched');
+                    
+                    card1.querySelector('.card-inner').classList.add('matched-anim');
+                    card2.querySelector('.card-inner').classList.add('matched-anim');
+
+                    combo++;
+                    if (combo > maxCombo) maxCombo = combo;
+
+                    const comboBonus = (combo - 1) * 50;
+                    score += 100 + comboBonus;
+
+                    matchedPairs++;
+                    updateScoreboard();
+
+                    flippedCards = [];
+                    isBoardLocked = false;
+
+                    if (matchedPairs === TOTAL_PAIRS) {
+                        handleVictory();
+                    }
+                }, 300);
+
+            } else {
+                combo = 0;
+                setTimeout(() => {
+                    playSound('mismatch');
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+
+                    card1.querySelector('.card-inner').classList.remove('rotate-y-180');
+                    card2.querySelector('.card-inner').classList.remove('rotate-y-180');
+
+                    flippedCards = [];
+                    isBoardLocked = false;
+                }, 1000);
+            }
+        }
+
+        function handleVictory() {
+            stopTimer();
+            playSound('victory');
+            triggerConfetti();
+
+            document.getElementById('finalScore').textContent = `${score}점`;
+            document.getElementById('finalTime').textContent = document.getElementById('timer').textContent;
+            document.getElementById('finalMoves').textContent = `${moves}회`;
+            document.getElementById('finalCombo').textContent = `${maxCombo}회`;
+
+            const modal = document.getElementById('victoryModal');
+            const modalCard = document.getElementById('modalCard');
+            modal.classList.remove('hidden');
+
+            setTimeout(() => {
+                modalCard.classList.remove('scale-90', 'opacity-0');
+                modalCard.classList.add('scale-100', 'opacity-100');
+            }, 50);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('victoryModal');
+            const modalCard = document.getElementById('modalCard');
+            modalCard.classList.remove('scale-100', 'opacity-100');
+            modalCard.classList.add('scale-90', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        function triggerConfetti() {
+            const count = 200;
+            const defaults = { origin: { y: 0.7 } };
+
+            function fire(particleRatio, opts) {
+                confetti(Object.assign({}, defaults, opts, {
+                    particleCount: Math.floor(count * particleRatio)
+                }));
+            }
+
+            fire(0.25, { spread: 26, startVelocity: 55 });
+            fire(0.2, { spread: 60 });
+            fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+            fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+            fire(0.1, { spread: 120, startVelocity: 45 });
+        }
+
+        function restartGame() {
+            initGame();
+        }
+
+        window.onload = () => {
+            initGame();
+        };
+    </script>
+</body>
+</html>
