@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>독도의 날 퀴즈</title>
+<style>
+:root{color-scheme:dark;--gold:#e9c46a;--gold2:#fff1c1;--text:#f1f5fb;--sub:#a9bddb;--card:rgba(6,20,48,.82);--line:rgba(233,196,106,.35);--ok:#46e08a;--okbg:rgba(70,224,138,.14);--no:#ff6464;--nobg:rgba(255,100,100,.14);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{height:auto}
+*{box-sizing:border-box}
+body{margin:0;color:var(--text);font-family:"Noto Serif KR","Nanum Myeongjo","Batang",serif;min-height:100vh;min-height:100dvh;background:radial-gradient(ellipse at 50% 108%,#f7b955 0,#c8612f 12%,rgba(200,97,47,0) 42%),linear-gradient(180deg,#040d24 0%,#0a2557 55%,#12408a 100%);display:flex;justify-content:center;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+.wrap{width:100%;max-width:760px;padding:18px}
+.hero{text-align:center;margin:6px 0 16px}
+.hero svg{width:150px;height:56px;display:block;margin:0 auto -2px}
+.hero h1{margin:0;font-size:2.1rem;letter-spacing:.06em;background:linear-gradient(180deg,var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 2px 14px rgba(233,196,106,.25)}
+.hero p{margin:6px 0 0;color:var(--sub);font-size:1rem;letter-spacing:.08em}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:24px;box-shadow:0 10px 40px rgba(0,0,0,.45),inset 0 0 0 4px rgba(6,20,48,.9),inset 0 0 0 5px var(--line);backdrop-filter:blur(4px)}
+.top{display:flex;justify-content:space-between;color:var(--gold);font-weight:700;margin-bottom:10px;font-size:1.05rem}
+.bar{height:8px;background:rgba(255,255,255,.12);border-radius:6px;overflow:hidden;margin-bottom:20px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .3s}
+.q{word-break:keep-all;font-size:1.4rem;font-weight:800;line-height:1.55;margin:0 0 18px;color:var(--gold2)}
+.opts{display:grid;gap:12px}
+.opt{touch-action:manipulation;word-break:keep-all;font:inherit;font-size:1.15rem;text-align:left;padding:16px 18px;min-height:60px;border:2px solid rgba(169,189,219,.35);background:rgba(255,255,255,.05);color:var(--text);border-radius:12px;cursor:pointer}
+.opt:active{transform:scale(.99)}
+.opt.ok{border-color:var(--ok);background:var(--okbg)}
+.opt.no{border-color:var(--no);background:var(--nobg);opacity:.8}
+.opt:disabled{cursor:default}
+.msg{min-height:34px;margin:16px 0 4px;font-size:1.2rem;font-weight:800}
+.msg.ok{color:var(--ok)}.msg.no{color:var(--no)}
+.btn{touch-action:manipulation;font:inherit;font-size:1.15rem;font-weight:800;padding:14px 28px;border:0;border-radius:12px;background:linear-gradient(180deg,var(--gold2),var(--gold));color:#2a1c00;cursor:pointer;min-height:54px}
+.btn.hide{display:none}
+.c{text-align:center}
+.c h2{margin:0 0 8px;font-size:1.7rem;color:var(--gold2)}
+.big{font-size:3.2rem;font-weight:900;color:var(--gold);margin:4px 0}
+.sub{color:var(--sub);line-height:1.6;margin:0 0 18px}
+h3{margin:22px 0 10px;color:var(--gold);font-size:1.1rem}
+.list{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.list li{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;padding:12px 14px;border-radius:10px;border:1px solid;border-left-width:6px;line-height:1.5}
+.list li.ok{color:var(--ok);border-color:var(--ok);background:var(--okbg)}
+.list li.no{color:var(--no);border-color:var(--no);background:var(--nobg)}
+.list b{white-space:nowrap}
+.list small{display:block;color:var(--text);opacity:.9;margin-top:2px}
+.hist{list-style:none;padding:0;margin:0 0 6px;display:grid;gap:8px}
+.hist li{display:flex;justify-content:space-between;padding:12px 16px;border:1px solid var(--line);border-radius:10px;font-weight:700}
+.hist li.cur{background:rgba(233,196,106,.16);border-color:var(--gold)}
+.foot{text-align:center;color:var(--sub);font-size:.85rem;margin:14px 0 4px}
+@media (max-width:600px){
+.wrap{padding:12px}
+.hero h1{font-size:1.6rem}
+.hero p{font-size:.9rem}
+.hero svg{width:120px;height:45px}
+.card{padding:16px;border-radius:14px}
+.q{font-size:1.2rem;margin-bottom:14px}
+.opt{font-size:1.05rem;padding:14px;min-height:56px}
+.msg{font-size:1.1rem}
+.btn{width:100%}
+.c h2{font-size:1.4rem}
+.big{font-size:2.6rem}
+.list li{padding:10px 12px;font-size:.95rem}
+.hist li{padding:10px 12px}
+.foot{font-size:.8rem}
+}
+@media (max-width:360px){.hero h1{font-size:1.4rem}.q{font-size:1.1rem}.opt{font-size:1rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="hero">
+<svg viewBox="0 0 150 56" aria-hidden="true"><path d="M0 50 Q40 46 75 50 T150 50 V56 H0Z" fill="#12408a"/><path d="M28 50 L48 24 L58 30 L68 14 L82 34 L92 50Z" fill="#0b1b3a" stroke="#e9c46a" stroke-width="1.2"/><path d="M92 50 L106 30 L118 36 L130 50Z" fill="#0b1b3a" stroke="#e9c46a" stroke-width="1.2"/></svg>
+<h1>大韓民國 獨島</h1>
+<p>독도의 날 기념 · 우리 땅 독도 퀴즈</p>
+</div>
+<div class="card" id="app"></div>
+<div class="foot">독도는 대한민국의 아름다운 영토입니다 🇰🇷</div>
+</div>
+<script>
+var Q=[
+{q:"독도의 날(10월 25일)은 어떤 사실을 기념해 정해졌을까요?",o:["대한제국 칙령 제41호 반포","한일 병합 조약 체결","광복군 창설","대한민국 정부 수립"],a:0},
+{q:"1900년 칙령 제41호에서 울도군의 관할 구역에 포함한 ‘석도(石島)’는 오늘날 어디일까요?",o:["죽도","독도","관음도","거문도"],a:1},
+{q:"조선 숙종 때 일본에 건너가 울릉도·독도가 조선 땅임을 주장한 인물은 누구일까요?",o:["장보고","이순신","안용복","김정호"],a:2},
+{q:"512년 신라 지증왕 때 우산국을 복속시킨 장군은 누구일까요?",o:["김유신","이종무","강감찬","이사부"],a:3},
+{q:"“우산·무릉 두 섬이 서로 멀지 않아 날씨가 맑으면 바라볼 수 있다”는 기록이 실린 책은?",o:["세종실록지리지","삼국유사","택리지","난중일기"],a:0},
+{q:"1696년 일본 에도 막부가 안용복 사건 이후 내린 조치는 무엇일까요?",o:["독도 점령 선포","일본인의 울릉도 도해 금지","조선 통신사 파견 중단","시마네현 편입"],a:1},
+{q:"1877년 일본 태정관은 ‘죽도외일도(울릉도와 독도)’를 어떻게 판단했을까요?",o:["일본 영토에 편입","미국에 위탁 통치","일본과 관계없는 땅","공동 관리 구역"],a:2},
+{q:"일본이 러일전쟁 중인 1905년 독도를 불법 편입한 근거로 내세운 것은?",o:["시모노세키 조약","포츠머스 조약","한일의정서","시마네현 고시 제40호"],a:3},
+{q:"1946년 연합국 최고사령관 훈령(SCAPIN) 제677호는 독도를 어떻게 다루었을까요?",o:["일본의 통치·행정 범위에서 제외","일본 영토로 인정","미군 기지로 지정","중립 지대로 지정"],a:0},
+{q:"1952년 이승만 대통령이 선포하여 독도를 우리 수역에 포함한 선은?",o:["38도선","평화선","북방한계선","휴전선"],a:1},
+{q:"1953년 울릉도 주민들이 중심이 되어 독도 수호에 나선 민간 조직은?",o:["의열단","삼별초","독도의용수비대","광복군"],a:2},
+{q:"독도는 어떻게 만들어진 섬일까요?",o:["산호가 쌓여 생긴 섬","하천 퇴적물로 생긴 섬","육지에서 떨어져 나온 섬","해저 화산 분출로 생긴 화산섬"],a:3},
+{q:"독도는 문화재청에서 어떤 문화재로 지정되어 있을까요?",o:["천연기념물(독도 천연보호구역)","국보","사적","보물"],a:0},
+{q:"독도에서 가장 높은 봉우리인 대한봉이 있는 섬은 어디일까요?",o:["동도","서도","죽도","관음도"],a:1},
+{q:"독도는 울릉도와 일본 오키섬 중 어느 쪽에 더 가까울까요?",o:["오키섬","거의 같은 거리","울릉도 (약 87km)","제주도"],a:2},
+{q:"독도 인근 바다가 좋은 어장인 이유로 알맞은 것은?",o:["화산 활동이 활발해서","강물이 많이 흘러들어서","수심이 매우 얕아서","난류와 한류가 만나는 조경 수역이라서"],a:3},
+{q:"우리나라 영토의 최동단에 위치한 섬은 어디일까요?",o:["독도","마라도","가거도","백령도"],a:0},
+{q:"서양에서 독도를 ‘리앙쿠르 암초’로 부르게 된 유래는?",o:["일본 탐험가의 이름","프랑스 포경선 리앙쿠르호의 발견","영국 해군 장교의 이름","러시아 지도 제작자"],a:1},
+{q:"독도의 옛 이름이 아닌 것은?",o:["우산도","삼봉도","마라도","가지도"],a:2},
+{q:"독도의 현재 행정구역상 소속으로 알맞은 것은?",o:["강원특별자치도 삼척시","경상남도 거제시","경상북도 포항시","경상북도 울릉군"],a:3}
+];
+var app=document.getElementById("app"),scores=[],seen=[],cur=[],res={},last=[],idx=0,score=0,tried=false,ac=null;
+function tone(f,s,l,t,v){try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();var o=ac.createOscillator(),g=ac.createGain(),n=ac.currentTime+s;o.type=t||"sine";o.frequency.value=f;g.gain.setValueAtTime(v||.15,n);g.gain.exponentialRampToValueAtTime(.001,n+l);o.connect(g);g.connect(ac.destination);o.start(n);o.stop(n+l)}catch(e){}}
+function sOk(){tone(523,0,.15);tone(659,.12,.15);tone(784,.24,.3)}
+function sNo(){tone(220,0,.25,"sawtooth",.1);tone(165,.2,.3,"sawtooth",.1)}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function ids(){return Q.map(function(_,i){return i})}
+function home(){app.innerHTML='<div class="c"><h2>독도 퀴즈에 도전하세요</h2><p class="sub">고등학생 수준의 4지선다 10문제입니다.<br>역사·지리·국제법 속 독도를 얼마나 알고 있나요?</p><button class="btn" id="go">도전 시작</button></div>';document.getElementById("go").onclick=start}
+function start(){var pick;
+ if(!scores.length){pick=shuffle(ids()).slice(0,10)}
+ else{var keep=last.filter(function(i){return !res[i]}),need=10-keep.length;
+  var fresh=shuffle(ids().filter(function(i){return seen.indexOf(i)<0})).slice(0,need);
+  if(fresh.length<need){var rest=shuffle(ids().filter(function(i){return keep.indexOf(i)<0&&fresh.indexOf(i)<0}));fresh=fresh.concat(rest.slice(0,need-fresh.length))}
+  pick=keep.concat(fresh)}
+ var c=shuffle(pick);if(scores.length&&c.join()===last.join())c=shuffle(pick);
+ cur=c;pick.forEach(function(i){if(seen.indexOf(i)<0)seen.push(i)});
+ res={};idx=0;score=0;render()}
+function render(){var n=Q[cur[idx]];tried=false;
+ app.innerHTML='<div class="top"><span>'+(scores.length+1)+'차 도전</span><span>'+(idx+1)+' / 10</span></div><div class="bar"><i style="width:'+(idx/10*100)+'%"></i></div><p class="q">'+n.q+'</p><div class="opts">'+n.o.map(function(t,i){return '<button class="opt" data-i="'+i+'">'+(i+1)+'. '+t+'</button>'}).join("")+'</div><div class="msg" id="msg" aria-live="polite"></div><button class="btn hide" id="nx">'+(idx===9?"결과 보기":"다음 문제")+'</button>';
+ var bs=app.querySelectorAll(".opt");
+ bs.forEach(function(b){b.onclick=function(){pick(b,+b.dataset.i,n,bs)}});
+ document.getElementById("nx").onclick=function(){idx++;idx<10?render():finish()}}
+function pick(b,i,n,bs){var m=document.getElementById("msg"),id=cur[idx];
+ if(i===n.a){if(!tried){score++;res[id]=true}b.classList.add("ok");m.className="msg ok";m.textContent="🎉 정답입니다!";sOk();bs.forEach(function(x){x.disabled=true});document.getElementById("nx").classList.remove("hide")}
+ else{tried=true;res[id]=false;b.classList.add("no");b.disabled=true;m.className="msg no";m.textContent="다시 생각해 보세요.";sNo()}}
+function finish(){scores.push(score);last=cur.slice();
+ var hist=scores.map(function(s,i){return '<li class="'+(i===scores.length-1?"cur":"")+'"><span>'+(i+1)+'차 점수</span><span>'+s+' / 10</span></li>'}).join("");
+ var rows=cur.map(function(id,k){var n=Q[id],ok=res[id];return '<li class="'+(ok?"ok":"no")+'"><div>'+(k+1)+'. '+n.q+(ok?'':'<small>정답: '+n.o[n.a]+'</small>')+'</div><b>'+(ok?"○ 정답":"✕ 오답")+'</b></li>'}).join("");
+ var cm=score===10?"완벽합니다! 독도 수호의 파수꾼 🏆":score>=7?"훌륭합니다! 독도를 잘 알고 있어요 👏":"조금만 더! 다시 도전해 보세요 💪";
+ var wrong=10-score;
+ app.innerHTML='<div class="c"><h2>'+scores.length+'차 도전 결과</h2><div class="big">'+score+' / 10</div><p class="sub">'+cm+'</p></div><h3>회차별 점수</h3><ul class="hist">'+hist+'</ul><h3>문제별 결과</h3><ul class="list">'+rows+'</ul><div class="c" style="margin-top:22px"><p class="sub">'+(wrong?'다시 도전하면 틀린 '+wrong+'문제는 그대로, 맞힌 문제는 새로운 문제로 바뀌어요.':'다시 도전하면 모두 새로운 문제로 바뀌어요.')+'</p><button class="btn" id="re">다시 도전</button></div>';
+ document.getElementById("re").onclick=start;window.scrollTo(0,0)}
+home();
+</script>
+</body>
+</html>
