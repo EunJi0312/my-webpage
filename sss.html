@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>속담 척척 퀴즈</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
+<style>
+:root{--bg:#e4f1fb;--card:#ffffff;--ink:#1f2a5c;--sub:#4b5688;--coral:#ff6b57;--coral-d:#c9442f;--sun:#ffd23f;--sun-d:#d9a800;--mint:#2bb58f;--mint-d:#1b8467;--line:#c9d9ea;--bad:#d6342a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#141a38;--card:#1f2850;--ink:#f1f4ff;--sub:#b3bce6;--line:#34407a;--sun-d:#a98400}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#141a38;--card:#1f2850;--ink:#f1f4ff;--sub:#b3bce6;--line:#34407a;--sun-d:#a98400}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:18px;line-height:1.5;min-height:100vh;min-height:100dvh;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;display:flex;justify-content:center;align-items:flex-start;padding:20px 14px}
+h1,h2,.jua,button{font-family:"Jua","Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+main{width:100%;max-width:640px}
+.card{background:var(--card);border:3px solid var(--ink);border-radius:26px;padding:26px 22px;box-shadow:0 8px 0 var(--ink)}
+.hidden{display:none!important}
+h1{font-size:clamp(38px,9vw,56px);line-height:1.1;margin:0 0 10px;letter-spacing:-.02em}
+h1 .a{color:var(--coral)}
+p{margin:0 0 14px}
+.sub{color:var(--sub)}
+.btn{display:inline-block;border:3px solid var(--ink);border-radius:18px;background:var(--sun);color:#1f2a5c;font-size:22px;padding:12px 26px;cursor:pointer;min-height:46px;touch-action:manipulation;box-shadow:0 6px 0 var(--ink);transition:transform .08s,box-shadow .08s}
+.btn:hover{transform:translateY(2px);box-shadow:0 4px 0 var(--ink)}
+.btn:active{transform:translateY(6px);box-shadow:0 0 0 var(--ink)}
+.btn.go{background:var(--coral);color:#fff;width:100%;font-size:28px;padding:16px}
+.btn.mint{background:var(--mint);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:0 6px 0 var(--ink)}
+:focus-visible{outline:4px solid var(--coral);outline-offset:3px}
+.setting{background:var(--bg);border:3px solid var(--ink);border-radius:20px;padding:18px;margin:20px 0;box-shadow:inset 0 -6px 0 var(--line)}
+.setting label{display:flex;justify-content:space-between;align-items:baseline;font-family:"Jua",sans-serif;font-size:22px}
+.big{font-size:44px;color:var(--coral)}
+input[type=range]{width:100%;height:36px;accent-color:var(--coral);margin-top:8px}
+.ticks{display:flex;justify-content:space-between;font-size:15px;color:var(--sub)}
+.csv{font-size:15px;color:var(--sub);margin-top:14px}
+.csv input{font-size:14px;max-width:100%}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stat{background:var(--card);border:3px solid var(--ink);border-radius:18px;padding:8px 14px;text-align:center;box-shadow:0 5px 0 var(--ink)}
+.stat small{display:block;font-size:15px;color:var(--sub);line-height:1.2}
+.stat b{font-family:"Jua",sans-serif;font-size:34px;font-weight:400;line-height:1.2}
+.stat.low b{color:var(--bad);animation:pulse .8s infinite}
+.bar{height:14px;border:3px solid var(--ink);border-radius:10px;background:var(--card);margin-bottom:16px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--mint);transition:width .25s linear}
+.q-meta{display:flex;justify-content:space-between;color:var(--sub);font-size:16px}
+.front{font-family:"Jua",sans-serif;font-size:clamp(34px,9vw,52px);line-height:1.25;margin:12px 0 4px;word-break:keep-all}
+.blank{display:inline-block;min-width:3ch;border-bottom:5px dashed var(--coral);color:var(--coral);text-align:center}
+.hint{min-height:44px;margin:10px 0;font-family:"Jua",sans-serif;font-size:28px;letter-spacing:.14em;color:var(--sun-d)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.ans{flex:1 1 220px;font:inherit;font-size:26px;padding:12px 14px;border:3px solid var(--ink);border-radius:16px;background:var(--bg);color:var(--ink);min-width:0}
+.ans.wrong{animation:shake .35s}
+.fb{margin-top:16px;border:3px solid var(--ink);border-radius:18px;padding:14px 16px}
+.fb.ok{background:#d8f5ea;color:#0e4d3a}
+.fb.no{background:#ffe3df;color:#6e1a10}
+.fb b{font-family:"Jua",sans-serif;font-size:24px;font-weight:400;display:block}
+.result-num{font-family:"Jua",sans-serif;font-size:76px;line-height:1;color:var(--coral)}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.sum div{background:var(--bg);border:3px solid var(--ink);border-radius:16px;padding:10px 6px;text-align:center}
+.sum b{display:block;font-family:"Jua",sans-serif;font-size:28px;font-weight:400}
+.sum small{color:var(--sub);font-size:14px}
+.review{max-height:230px;overflow-y:auto;border:3px solid var(--ink);border-radius:16px;padding:6px 14px;margin:0 0 18px;font-size:16px}
+.review li{margin:8px 0}
+.review ul{padding-left:18px;margin:6px 0}
+canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
+@keyframes pulse{50%{transform:scale(1.12)}}
+@keyframes shake{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+@media (max-width:480px){body{font-size:17px;padding:12px 10px}.card{padding:20px 16px;border-radius:22px}.stats{gap:8px}.stat b{font-size:28px}.btn{padding:10px 18px;font-size:20px}.btn.go{font-size:24px}.setting{padding:14px}.setting label{font-size:19px}.big{font-size:36px}.ans{flex-basis:100%;font-size:22px}.row .btn{flex:1}.hint{font-size:24px;min-height:38px}.sum{gap:6px}.sum b{font-size:22px}.result-num{font-size:60px}.review{max-height:200px}}
+@media (max-width:340px){h1{font-size:34px}.sum{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <section id="start" class="card">
+    <h1>속담 <span class="a">척척</span> 퀴즈</h1>
+    <p>속담의 앞부분을 보고 뒷부분을 이어 써 보세요. 시간 안에 많이 맞힐수록 높은 점수를 받아요!</p>
+    <div class="setting">
+      <label for="limit"><span>제한 시간</span><span><span class="big" id="limitVal">120</span>초</span></label>
+      <input type="range" id="limit" min="30" max="300" step="10" value="120">
+      <div class="ticks"><span>30초</span><span>300초</span></div>
+    </div>
+    <p class="sub">초성 힌트는 한 판에 2번까지 쓸 수 있어요.</p>
+    <button class="btn go" id="startBtn">게임 시작</button>
+    <div class="csv">
+      <p id="countInfo" style="margin-bottom:6px"></p>
+      선생님용: 다른 속담 파일(CSV) 불러오기<br>
+      <input type="file" id="csvFile" accept=".csv,text/csv" aria-label="속담 CSV 파일 선택">
+      <div id="csvMsg" role="status"></div>
+    </div>
+  </section>
+
+  <section id="game" class="card hidden">
+    <div class="stats">
+      <div class="stat"><small>현재 점수</small><b id="score">0</b></div>
+      <div class="stat" id="timeBox"><small>남은 시간</small><b><span id="time">0</span>초</b></div>
+    </div>
+    <div class="bar" aria-hidden="true"><i id="barFill" style="width:100%"></i></div>
+    <div class="q-meta"><span id="qNo"></span><span>맞힌 개수 <b id="correct">0</b></span></div>
+    <div class="front"><span id="front"></span> <span class="blank">&nbsp;?&nbsp;</span></div>
+    <div class="hint" id="hint" aria-live="polite"></div>
+    <div class="row">
+      <input class="ans" id="ans" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="뒷부분을 써 보세요" aria-label="속담 뒷부분 입력">
+      <button class="btn mint" id="submit">확인</button>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn" id="hintBtn" style="font-size:18px;padding:8px 18px">초성 힌트 (<span id="hintLeft">2</span>)</button>
+      <button class="btn" id="skipBtn" style="font-size:18px;padding:8px 18px;background:var(--card)">모르겠어요</button>
+    </div>
+    <div class="fb hidden" id="fb" role="status"></div>
+    <div class="row" style="margin-top:14px"><button class="btn hidden" id="nextBtn">다음 문제</button></div>
+  </section>
+
+  <section id="end" class="card hidden" style="text-align:center">
+    <h2 style="font-size:32px;margin:0" id="endTitle">게임 끝!</h2>
+    <div class="result-num" id="endScore">0</div>
+    <p class="sub">점</p>
+    <div class="sum">
+      <div><b id="eCorrect">0</b><small>맞춘 개수</small></div>
+      <div><b id="eRate">0%</b><small>정답률</small></div>
+      <div><b id="eTime">0초</b><small>남은 시간</small></div>
+    </div>
+    <div id="reviewWrap" class="hidden" style="text-align:left"><b class="jua">다시 볼 속담</b><div class="review"><ul id="review"></ul></div></div>
+    <button class="btn go" id="again">다시 하기</button>
+  </section>
+</main>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<script>
+const NOTES = {"가는 말이 고와야": "내가 남에게 말을 곱게 해야 남도 나에게 곱게 말해 준다는 뜻이에요.", "가랑비에": "작은 것도 계속 쌓이면 어느새 큰 손해나 변화가 된다는 뜻이에요.", "가재는": "모양이나 처지가 비슷한 사람끼리 서로 편들고 어울린다는 뜻이에요.", "갈수록": "일이 점점 더 어렵고 힘들어진다는 뜻이에요.", "같은 값이면": "같은 조건이라면 더 보기 좋고 좋은 것을 고른다는 뜻이에요.", "개구리 올챙이 적": "형편이 나아진 뒤 어려웠던 때를 잊고 잘난 척한다는 뜻이에요.", "고래 싸움에": "힘센 사람들끼리 싸우는 바람에 약한 사람이 피해를 본다는 뜻이에요.", "공든 탑이": "정성을 다해 한 일은 헛되지 않고 좋은 결과를 얻는다는 뜻이에요.", "구슬이 서 말이라도": "아무리 좋은 재료도 쓸모 있게 만들어야 값어치가 있다는 뜻이에요.", "굴러온 돌이": "새로 온 사람이 원래 있던 사람을 밀어낸다는 뜻이에요.", "금강산도": "아무리 좋은 일도 배가 불러야 즐길 수 있다는 뜻이에요.", "꿩 대신": "꼭 필요한 것이 없을 때 비슷한 다른 것으로 대신한다는 뜻이에요.", "낮말은 새가 듣고": "아무도 없다고 생각해도 말은 새어 나가니 말조심하라는 뜻이에요.", "낫 놓고": "아주 쉬운 것도 모를 만큼 무식하다는 뜻이에요.", "누워서": "남에게 해를 주려다 오히려 내가 해를 입는다는 뜻이에요.", "다 된 밥에": "거의 다 된 일을 망쳐 놓는다는 뜻이에요.", "달면 삼키고": "자기에게 이로우면 따르고 해로우면 멀리한다는 뜻이에요.", "닭 쫓던 개": "애써 하던 일이 허사가 되어 멍하니 바라만 본다는 뜻이에요.", "도둑이": "잘못한 사람은 가만히 있어도 스스로 마음이 불안하다는 뜻이에요.", "돌다리도": "잘 아는 일이라도 조심해서 확인하며 하라는 뜻이에요.", "등잔 밑이": "가까이 있는 것을 오히려 잘 모른다는 뜻이에요.", "뛰는 놈 위에": "잘하는 사람 위에는 더 잘하는 사람이 있으니 뽐내지 말라는 뜻이에요.", "말 한마디에": "말만 잘해도 어려운 일을 해결할 수 있다는 뜻이에요.", "목마른 사람이": "급하고 필요한 사람이 먼저 나서서 일을 한다는 뜻이에요.", "믿는 도끼에": "굳게 믿었던 사람에게 배신당한다는 뜻이에요.", "바늘 도둑이": "작은 나쁜 짓도 버릇이 되면 큰 잘못으로 이어진다는 뜻이에요.", "백지장도": "쉬운 일이라도 함께 하면 훨씬 수월하다는 뜻이에요.", "벼는 익을수록": "훌륭한 사람일수록 잘난 척하지 않고 겸손하다는 뜻이에요.", "보기 좋은 떡이": "겉모습이 좋으면 내용도 좋다는 뜻이에요.", "빈 수레가": "아는 것이 없는 사람이 오히려 더 떠들고 잘난 척한다는 뜻이에요.", "사공이 많으면": "참견하는 사람이 많으면 일이 엉뚱하게 흘러간다는 뜻이에요.", "세 살 버릇": "어릴 때 몸에 밴 버릇은 오래도록 고치기 어렵다는 뜻이에요.", "소 잃고": "일이 잘못된 뒤에 뒤늦게 대비해 봐야 소용없다는 뜻이에요.", "쇠귀에": "아무리 가르쳐 주어도 알아듣지 못한다는 뜻이에요.", "시작이": "무슨 일이든 시작하기가 가장 어려우니 시작하면 절반은 한 것이라는 뜻이에요.", "아는 길도": "잘 아는 일도 다시 확인하며 조심하라는 뜻이에요.", "아니 땐 굴뚝에": "소문이 났다면 반드시 원인이 있다는 뜻이에요.", "엎질러진": "이미 벌어진 일은 되돌릴 수 없다는 뜻이에요.", "열 번 찍어": "끈기 있게 계속 노력하면 이루지 못할 일이 없다는 뜻이에요.", "우물 안": "좁은 세상만 알고 넓은 세상을 모르는 사람을 말해요.", "원숭이도": "아무리 잘하는 사람도 가끔은 실수한다는 뜻이에요.", "윗물이 맑아야": "윗사람이 바르게 행동해야 아랫사람도 따라서 바르게 행동한다는 뜻이에요.", "자라 보고 놀란 가슴": "한 번 크게 놀라면 비슷한 것만 봐도 겁을 먹는다는 뜻이에요.", "작은 고추가": "몸집이 작아도 속은 야무지고 능력이 뛰어나다는 뜻이에요.", "천 리 길도": "아무리 먼 길도 첫걸음부터 시작하니 작은 일부터 차근차근 하라는 뜻이에요.", "콩 심은 데 콩 나고": "모든 일은 원인대로 결과가 나타난다는 뜻이에요.", "티끌 모아": "작은 것도 모이면 큰 것이 된다는 뜻이에요.", "하늘의": "무엇을 얻거나 이루기가 아주 어렵다는 뜻이에요.", "호랑이도": "어떤 사람이 없는 곳에서 흉을 보면 마침 그 사람이 나타난다는 뜻이에요.", "호미로 막을 것을": "작은 일을 제때 처리하지 않아 큰 힘이 들게 된다는 뜻이에요."};
+const RESERVE = [
+['가는 날이','장날이다','우연히 갔다가 뜻밖의 일을 만난다는 뜻이에요.'],
+['고생 끝에','낙이 온다','힘든 일을 참고 견디면 나중에 좋은 일이 생긴다는 뜻이에요.'],
+['구더기 무서워서','장 못 담글까','방해되는 것이 있다고 해서 꼭 해야 할 일을 그만둘 수는 없다는 뜻이에요.'],
+['급할수록','돌아가라','급한 일일수록 서두르지 말고 차근차근 하라는 뜻이에요.'],
+['까마귀 날자','배 떨어진다','우연히 일이 겹쳐서 괜한 의심을 받는다는 뜻이에요.'],
+['남의 떡이','더 커 보인다','남의 것이 내 것보다 더 좋아 보인다는 뜻이에요.'],
+['내 코가','석 자','내 사정이 급해서 남을 도울 겨를이 없다는 뜻이에요.'],
+['누울 자리 보고','발을 뻗어라','일의 결과를 미리 생각해서 행동하라는 뜻이에요.'],
+['되로 주고','말로 받는다','조금 주고 훨씬 많이 돌려받는다는 뜻이에요.'],
+['땅 짚고','헤엄치기','아주 쉬운 일이라는 뜻이에요.'],
+['똥 묻은 개가','겨 묻은 개 나무란다','더 큰 잘못이 있는 사람이 작은 잘못이 있는 사람을 흉본다는 뜻이에요.'],
+['모르는 게','약이다','차라리 모르는 것이 마음 편할 때가 있다는 뜻이에요.'],
+['물에 빠지면','지푸라기라도 잡는다','아주 위급하면 무엇이든 붙잡고 의지하려 한다는 뜻이에요.'],
+['밑 빠진 독에','물 붓기','아무리 애써도 보람이 없는 일이라는 뜻이에요.'],
+['병 주고','약 준다','해를 끼쳐 놓고 뒤늦게 도와주는 척한다는 뜻이에요.'],
+['서당 개 삼 년이면','풍월을 읊는다','오래 보고 들으면 자연스럽게 알게 된다는 뜻이에요.'],
+['서울 가서','김 서방 찾기','주소도 모르고 무작정 사람을 찾는 어리석은 일이라는 뜻이에요.'],
+['쇠뿔도','단김에 빼라','할 일은 마음먹었을 때 바로 해치우라는 뜻이에요.'],
+['수박','겉 핥기','내용은 모르고 겉만 대충 본다는 뜻이에요.'],
+['얌전한 고양이가','부뚜막에 먼저 올라간다','얌전해 보이는 사람이 뒤에서 먼저 일을 저지른다는 뜻이에요.'],
+['약방에','감초','어디에나 빠지지 않고 끼어드는 사람이나 물건을 말해요.'],
+['먼 사촌보다','가까운 이웃이 낫다','가까이 사는 이웃이 먼 친척보다 더 도움이 된다는 뜻이에요.'],
+['오르지 못할 나무는','쳐다보지도 마라','이룰 수 없는 일은 처음부터 욕심내지 말라는 뜻이에요.'],
+['우물에 가서','숭늉 찾는다','일의 차례를 모르고 성급하게 서두른다는 뜻이에요.'],
+['웃는 얼굴에','침 못 뱉는다','좋게 대하는 사람에게는 나쁘게 대하기 어렵다는 뜻이에요.'],
+['지렁이도','밟으면 꿈틀한다','아무리 순한 사람도 너무 업신여기면 화를 낸다는 뜻이에요.'],
+['첫술에','배부르랴','어떤 일이든 처음부터 만족할 수는 없다는 뜻이에요.'],
+['핑계 없는','무덤 없다','무슨 일이든 변명할 거리는 있다는 뜻이에요.'],
+['하룻강아지','범 무서운 줄 모른다','철없이 겁 없이 덤빈다는 뜻이에요.'],
+['달리는 말에','채찍질','잘하고 있는 사람을 더 열심히 하도록 북돋운다는 뜻이에요.'],
+['개천에서','용 난다','보잘것없는 환경에서 훌륭한 인물이 나온다는 뜻이에요.'],
+['고양이 목에','방울 달기','실행하기 어려운 일을 의논만 한다는 뜻이에요.'],
+['길고 짧은 것은','대어 봐야 안다','겉으로 보는 것만으로는 알 수 없으니 직접 해 봐야 안다는 뜻이에요.'],
+['열 길 물속은 알아도','한 길 사람 속은 모른다','사람의 마음은 알기 어렵다는 뜻이에요.'],
+['윗돌 빼서','아랫돌 괴기','임시방편으로 급한 일만 넘긴다는 뜻이에요.'],
+['하늘이 무너져도','솟아날 구멍이 있다','아무리 어려운 일을 당해도 헤쳐 나갈 길은 있다는 뜻이에요.'],
+['가는 정이 있어야','오는 정이 있다','내가 먼저 정을 베풀어야 남도 나에게 정을 준다는 뜻이에요.'],
+['소문난 잔치에','먹을 것 없다','소문이 요란한 것에 비해 내용은 보잘것없다는 뜻이에요.'],
+['비 온 뒤에','땅이 굳는다','어려움을 겪고 나면 더 단단해진다는 뜻이에요.'],
+['사촌이 땅을 사면','배가 아프다','남이 잘되는 것을 보면 샘이 난다는 뜻이에요.'],
+['될성부른 나무는','떡잎부터 알아본다','잘될 사람은 어릴 때부터 다르다는 뜻이에요.']
+].map(([front, back, note]) => ({front, back, note}));
+function keyOf(c){ return (c.front + c.back).replace(/[^가-힣A-Za-z0-9]/g, ''); }
+const DEFAULT_CSV = "앞부분,뒷부분\r\n가는 말이 고와야,오는 말이 곱다\r\n가랑비에,옷 젖는 줄 모른다\r\n가재는,게 편이다\r\n갈수록,태산\r\n같은 값이면,다홍치마\r\n개구리 올챙이 적,생각 못 한다\r\n고래 싸움에,새우 등 터진다\r\n공든 탑이,무너지랴\r\n구슬이 서 말이라도,꿰어야 보배\r\n굴러온 돌이,박힌 돌 뺀다\r\n금강산도,식후경\r\n꿩 대신,닭\r\n낮말은 새가 듣고,밤말은 쥐가 듣는다\r\n낫 놓고,기역 자도 모른다\r\n누워서,침 뱉기\r\n다 된 밥에,재 뿌리기\r\n달면 삼키고,쓰면 뱉는다\r\n닭 쫓던 개,지붕 쳐다보듯\r\n도둑이,제 발 저리다\r\n돌다리도,두들겨 보고 건너라\r\n등잔 밑이,어둡다\r\n뛰는 놈 위에,나는 놈 있다\r\n말 한마디에,천 냥 빚도 갚는다\r\n목마른 사람이,우물 판다\r\n믿는 도끼에,발등 찍힌다\r\n바늘 도둑이,소도둑 된다\r\n백지장도,맞들면 낫다\r\n벼는 익을수록,고개를 숙인다\r\n보기 좋은 떡이,먹기도 좋다\r\n빈 수레가,요란하다\r\n사공이 많으면,배가 산으로 간다\r\n세 살 버릇,여든까지 간다\r\n소 잃고,외양간 고친다\r\n쇠귀에,경 읽기\r\n시작이,반이다\r\n아는 길도,물어 가라\r\n아니 땐 굴뚝에,연기 날까\r\n엎질러진,물이다\r\n열 번 찍어,안 넘어가는 나무 없다\r\n우물 안,개구리\r\n원숭이도,나무에서 떨어진다\r\n윗물이 맑아야,아랫물이 맑다\r\n자라 보고 놀란 가슴,솥뚜껑 보고 놀란다\r\n작은 고추가,더 맵다\r\n천 리 길도,한 걸음부터\r\n콩 심은 데 콩 나고,팥 심은 데 팥 난다\r\n티끌 모아,태산\r\n하늘의,별 따기\r\n호랑이도,제 말 하면 온다\r\n호미로 막을 것을,가래로 막는다\r\n";
+const $ = id => document.getElementById(id);
+let bank = [], deck = [], cur = null, idx = 0, score = 0, ok = 0, tries = 0, hintsLeft = 2, hintUsed = false;
+let finishing = false, tLeft = 0, tLimit = 120, timer = null, locked = false, wrongs = [];
+
+function parseCSV(text){
+  const rows = []; let row = [], f = '', q = false;
+  text = text.replace(/^\uFEFF/, '');
+  for (let i = 0; i < text.length; i++){
+    const c = text[i];
+    if (q){ if (c === '"'){ if (text[i+1] === '"'){ f += '"'; i++; } else q = false; } else f += c; }
+    else if (c === '"') q = true;
+    else if (c === ','){ row.push(f); f = ''; }
+    else if (c === '\n' || c === '\r'){ if (c === '\r' && text[i+1] === '\n') i++; row.push(f); rows.push(row); row = []; f = ''; }
+    else f += c;
+  }
+  if (f || row.length){ row.push(f); rows.push(row); }
+  return rows.map(r => r.map(s => s.trim())).filter(r => r[0] && r[1])
+    .filter((r, i) => !(i === 0 && /앞/.test(r[0]) && /뒤|뒷/.test(r[1])))
+    .map(r => ({front: r[0], back: r[1], note: r[2] || NOTES[r[0]] || ''}));
+}
+function setBank(list){ const seen = new Set(); bank = list.filter(c => { const k = keyOf(c); if (seen.has(k)) return false; seen.add(k); return true; }); $('countInfo').textContent = `준비된 속담 ${bank.length}개 (다 풀면 새로운 속담이 이어서 나와요)`; $('startBtn').disabled = bank.length === 0; }
+setBank(parseCSV(DEFAULT_CSV));
+
+$('csvFile').addEventListener('change', async e => {
+  const file = e.target.files[0]; if (!file) return;
+  const buf = await file.arrayBuffer(); let text;
+  try { text = new TextDecoder('utf-8', {fatal: true}).decode(buf); }
+  catch { text = new TextDecoder('euc-kr').decode(buf); }
+  const list = parseCSV(text);
+  if (list.length){ setBank(list); $('csvMsg').textContent = `‘${file.name}’에서 ${list.length}개를 불러왔어요.`; }
+  else $('csvMsg').textContent = '속담을 찾지 못했어요. 첫 줄은 앞부분,뒷부분 순서로 적어 주세요.';
+});
+
+$('limit').addEventListener('input', e => $('limitVal').textContent = e.target.value);
+
+const CHO = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+function chosung(s){ return [...s].map(ch => { const c = ch.charCodeAt(0) - 0xAC00; return c >= 0 && c < 11172 ? CHO[Math.floor(c / 588)] : (ch === ' ' ? '\u00A0\u00A0' : ch); }).join(' '); }
+const norm = s => s.replace(/[\s.,!?~'"’‘“”…·\-]/g, '');
+
+function shuffle(a){ a = a.slice(); for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function show(id){ ['start','game','end'].forEach(s => $(s).classList.toggle('hidden', s !== id)); }
+
+function startGame(){
+  tLimit = tLeft = +$('limit').value; const seenK = new Set(bank.map(keyOf)); const extra = shuffle(RESERVE.filter(r => !seenK.has(keyOf(r)))).map(r => Object.assign({extra: true}, r)); deck = shuffle(bank).concat(extra); idx = 0; score = 0; ok = 0; tries = 0; hintsLeft = 2; wrongs = []; finishing = false;
+  $('score').textContent = 0; $('correct').textContent = 0; $('hintLeft').textContent = 2;
+  show('game'); drawTime(); nextQ();
+  clearInterval(timer); timer = setInterval(tick, 1000);
+}
+function tick(){
+  if (locked && cur && cur.pause) return;
+  tLeft--; drawTime();
+  if (tLeft <= 0){
+    if (!locked){ clearInterval(timer); tries++; miss('time', ''); } else endGame(true);
+  }
+}
+function drawTime(){ $('time').textContent = Math.max(0, tLeft); $('barFill').style.width = (Math.max(0, tLeft) / tLimit * 100) + '%'; $('timeBox').classList.toggle('low', tLeft <= 10); }
+
+function nextQ(){
+  if (idx >= deck.length){ endGame(false); return; }
+  cur = Object.assign({}, deck[idx]); idx++; locked = false; hintUsed = false;
+  $('qNo').textContent = `${idx}번째` + (cur.extra ? ' ✨ 새로운 속담' : '');
+  $('front').textContent = cur.front; $('hint').textContent = '';
+  $('ans').value = ''; $('ans').disabled = false; $('submit').disabled = false; $('skipBtn').disabled = false; $('hintBtn').disabled = hintsLeft <= 0;
+  $('fb').classList.add('hidden'); $('nextBtn').classList.add('hidden'); $('ans').focus();
+}
+
+const PRAISE = ['대단해요! 척척박사예요! 👏','우와, 정확해요! 최고예요!','잘했어요! 속담 실력이 쑥쑥 자라고 있어요!','멋져요! 이 속담은 이제 완벽해요!','훌륭해요! 어휘 왕이 될 수 있겠어요!','짝짝짝! 참 잘했어요!','와, 정말 똑똑해요! 척척 맞혔네요!','빛나는 실력이에요! 계속 이어 가요!'];
+let pi = 0;
+const ENDS = /(입니다|이에요|예요|습니다|합니다|아요|어요|이야|이죠|한다|했다|하다|해요|이다|다|요|죠|야|네|아|어|은|는|이|가|을|를|도|만|에|의|과|와)$/;
+function core(s){ s = norm(s); for (let i = 0; i < 2; i++){ const t = s.replace(ENDS, ''); if (t.length < 2 || t === s) break; s = t; } return s; }
+function isRight(u, c){
+  const nu = norm(u), nb = norm(c.back);
+  if (nu === nb || nu === norm(c.front + c.back)) return true;
+  const cu = core(u), cb = core(c.back);
+  return cu === cb || cu === core(c.front + c.back) || (nu.startsWith(norm(c.front)) && core(nu.slice(norm(c.front).length)) === cb);
+}
+const noteOf = c => c.note || '속담 전체를 소리 내어 읽고, 뜻을 친구와 이야기해 보세요.';
+const lockAll = () => { $('ans').disabled = $('submit').disabled = $('hintBtn').disabled = $('skipBtn').disabled = true; $('fb').scrollIntoView({block: 'nearest'}); };
+
+function check(){
+  if (locked) return; const v = $('ans').value; if (!norm(v)) return;
+  tries++;
+  if (isRight(v, cur)){
+    locked = true; ok++; const pts = hintUsed ? 5 : 10; score += pts;
+    $('score').textContent = score; $('correct').textContent = ok;
+    const praise = PRAISE[pi++ % PRAISE.length];
+    $('fb').className = 'fb ok'; $('fb').innerHTML = `<b>${praise} +${pts}점</b>${cur.front} ${cur.back}<br><small>${noteOf(cur)}</small>`;
+    lockAll(); boom();
+    setTimeout(() => { if ($('game').classList.contains('hidden')) return; nextQ(); }, 1000);
+  } else miss('wrong', v);
+}
+function miss(kind, v){
+  locked = true; cur.pause = true; wrongs.push({front: cur.front, back: cur.back, note: noteOf(cur)});
+  $('ans').classList.remove('wrong'); void $('ans').offsetWidth; if (kind === 'wrong') $('ans').classList.add('wrong');
+  const t = {wrong: '아쉬워요. 오답 해설을 읽어 볼까요?', skip: '모르면 배우면 돼요! 해설을 읽어 볼까요?', time: '시간이 다 됐어요. 이 속담도 확인해 볼까요?'}[kind];
+  $('fb').className = 'fb no';
+  $('fb').innerHTML = `<b>${t}</b>정답: ${cur.front} <u>${cur.back}</u><br>뜻: ${noteOf(cur)}` + (kind === 'wrong' ? `<br><small>내가 쓴 답: ${v.replace(/</g, '&lt;')}</small>` : '');
+  lockAll(); finishing = kind === 'time';
+  $('nextBtn').textContent = finishing ? '결과 보기' : '다음 문제'; $('nextBtn').classList.remove('hidden'); $('nextBtn').focus();
+}
+$('submit').onclick = check;
+$('skipBtn').onclick = () => { if (!locked){ tries++; miss('skip', ''); } };
+$('ans').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) check(); });
+$('nextBtn').onclick = () => { if (finishing) endGame(true); else nextQ(); };
+$('hintBtn').onclick = () => {
+  if (hintsLeft <= 0 || locked) return; hintsLeft--; hintUsed = true;
+  $('hintLeft').textContent = hintsLeft; $('hint').textContent = chosung(cur.back); $('hintBtn').disabled = true; $('ans').focus();
+};
+$('again').onclick = () => show('start');
+
+function endGame(timeUp){
+  clearInterval(timer); locked = true;
+  $('endTitle').textContent = timeUp ? '시간 끝!' : '모든 속담을 풀었어요!';
+  $('endScore').textContent = score; $('eCorrect').textContent = ok + '개';
+  $('eRate').textContent = (tries ? Math.round(ok / tries * 100) : 0) + '%'; $('eTime').textContent = Math.max(0, tLeft) + '초';
+  $('review').innerHTML = wrongs.map(w => `<li>${w.front} <b>${w.back}</b><br><small>${w.note}</small></li>`).join('');
+  $('reviewWrap').classList.toggle('hidden', !wrongs.length);
+  show('end'); if (ok >= Math.max(1, Math.ceil(tries * 0.7))) boom();
+}
+$('startBtn').onclick = startGame;
+
+/* 폭죽 */
+const cv = $('fx'), cx = cv.getContext('2d'); let parts = [], raf = null;
+function fit(){ cv.width = innerWidth; cv.height = innerHeight; } addEventListener('resize', fit); fit();
+function boom(){
+  const calm = matchMedia('(prefers-reduced-motion:reduce)').matches, cols = ['#ff6b57','#ffd23f','#2bb58f','#4aa8ff','#c77dff'];
+  for (let b = 0; b < (calm ? 1 : 3); b++){
+    const x = cv.width * (0.2 + Math.random() * 0.6), y = cv.height * (0.15 + Math.random() * 0.3);
+    for (let i = 0; i < 40; i++){ const a = Math.random() * 6.283, s = 2 + Math.random() * 6;
+      parts.push({x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 1, c: cols[i % cols.length], r: 3 + Math.random() * 3}); }
+  }
+  if (!raf) raf = requestAnimationFrame(loop);
+}
+function loop(){
+  cx.clearRect(0, 0, cv.width, cv.height);
+  parts = parts.filter(p => p.life > 0);
+  parts.forEach(p => { p.x += p.vx; p.y += p.vy; p.vy += .12; p.vx *= .985; p.life -= .017; cx.globalAlpha = Math.max(p.life, 0); cx.fillStyle = p.c; cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 6.283); cx.fill(); });
+  cx.globalAlpha = 1; raf = parts.length ? requestAnimationFrame(loop) : null;
+  if (!parts.length) cx.clearRect(0, 0, cv.width, cv.height);
+}
+</script>
+</body>
+</html>
