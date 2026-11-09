@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>시계 읽기 연습</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&display=swap">
+<style>
+:root{--ivory:#FBF5E6;--cream:#F3EAD3;--line:#2B2B2B;--ink:#1E1E1E;--soft:#8A8576;--white:#FFFFFF;--ok:#2B2B2B;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--ivory);color:var(--ink);font-family:'Jua','Apple SD Gothic Neo','Malgun Gothic',sans-serif;min-height:100vh;display:flex;justify-content:center}
+main{width:100%;max-width:520px;padding:16px 16px 28px;display:flex;flex-direction:column;gap:12px;align-items:center}
+h1{font-size:26px;margin:4px 0 0;font-weight:400}
+.levels{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%}
+.levels button{font:inherit;font-size:15px;padding:9px 2px;border:2.5px solid var(--line);background:var(--white);border-radius:14px;cursor:pointer;color:var(--ink)}
+.levels button[aria-pressed=true]{background:var(--ink);color:var(--ivory)}
+.levels small{display:block;font-size:12px;opacity:.75}
+.clockwrap{width:min(100%,380px,max(220px,44dvh));position:relative}
+svg{width:100%;height:auto;display:block}
+.score{display:flex;gap:8px;width:100%}
+.score div{flex:1;background:var(--cream);border:2px solid var(--line);border-radius:14px;text-align:center;padding:6px 0;font-size:14px}
+.score b{display:block;font-size:24px;font-weight:400}
+.ask{display:flex;align-items:center;gap:6px;font-size:24px;flex-wrap:wrap;justify-content:center}
+input.num{caret-color:transparent;font:inherit;font-size:28px;width:84px;text-align:center;border:3px solid var(--line);border-radius:14px;padding:6px;background:var(--white);color:var(--ink)}
+input:focus-visible,button:focus-visible{outline:3px solid #8A8576;outline-offset:2px}
+.go{font:inherit;font-size:20px;padding:10px 22px;border-radius:16px;border:3px solid var(--line);background:var(--ink);color:var(--ivory);cursor:pointer}
+.go:disabled{opacity:.4;cursor:default}
+input.num.on{background:#FFF3C9;box-shadow:0 0 0 4px #E9D9A6}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:300px}
+.pad button{font:inherit;font-size:26px;height:clamp(44px,7dvh,56px);user-select:none;-webkit-tap-highlight-color:transparent;border:2.5px solid var(--line);border-radius:16px;background:var(--white);color:var(--ink);cursor:pointer;touch-action:manipulation}
+.pad button:active{background:var(--cream);transform:translateY(2px)}
+.pad .fn{background:var(--cream);font-size:17px}
+.ghost{background:var(--white);color:var(--ink)}
+.row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+#msg{min-height:76px;width:100%;text-align:center;font-size:18px;line-height:1.5;padding:10px 12px;border-radius:16px;background:var(--cream);border:2px dashed var(--soft)}
+#msg.good{border-style:solid;border-color:var(--line);background:var(--white)}
+.opt{font-size:14px;color:var(--soft);display:flex;gap:6px;align-items:center}
+canvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:5}
+.balloon{position:fixed;bottom:-80px;font-size:44px;z-index:6;pointer-events:none;animation:up 2s ease-in forwards}
+@keyframes up{to{transform:translateY(-115vh) rotate(12deg)}}
+@media (prefers-reduced-motion:reduce){.balloon{animation-duration:.01s}}
+html{-webkit-text-size-adjust:100%}
+@media (max-width:380px){h1{font-size:22px}.levels button{font-size:13px}input.num{width:72px;font-size:24px}.ask{font-size:20px}#msg{font-size:16px}}
+@media (max-height:720px) and (orientation:portrait){main{gap:8px;padding-top:8px}h1{font-size:22px;margin:0}#msg{min-height:64px;padding:6px 10px}.score div{padding:3px 0}.score b{font-size:20px}.go{padding:8px 20px}}
+.stage{display:flex;flex-direction:column;align-items:center;gap:12px;width:100%}
+.left,.right{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%}
+@media (min-width:760px){main{max-width:920px}.levels,#msg,.score{max-width:560px}.stage{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:center}.clockwrap{width:min(100%,430px,64dvh)}.pad{max-width:320px}.pad button{height:clamp(40px,8dvh,64px)}.ask{font-size:28px}}
+</style>
+</head>
+<body>
+<main>
+  <h1>🕰️ 시계 읽기 연습</h1>
+  <div class="levels" id="levels" role="group" aria-label="난이도"></div>
+
+  <div class="stage">
+  <section class="left">
+  <div class="clockwrap">
+    <svg id="clock" viewBox="0 0 400 400" role="img" aria-label="아날로그 시계"></svg>
+  </div>
+  <label class="opt"><input type="checkbox" id="mnum"> 분 숫자(5, 10, 15…) 보기</label>
+
+  </section>
+  <section class="right">
+  <div class="ask">
+    <input type="text" class="num" id="hh" readonly inputmode="none" aria-label="시">시
+    <input type="text" class="num" id="mm" readonly inputmode="none" aria-label="분">분
+  </div>
+  <div class="pad" id="pad" role="group" aria-label="숫자 키패드"></div>
+  </section>
+  </div>
+  <div class="row">
+    <button class="go" id="check">정답 확인</button>
+    <button class="go ghost" id="next" hidden>다음 문제</button>
+  </div>
+  <div id="msg" aria-live="polite">지금 몇 시 몇 분일까요? 짧은바늘(시침)과 긴바늘(분침)을 잘 보세요.</div>
+
+  <div class="score">
+    <div>총 문제<b id="sT">0</b></div>
+    <div>맞힌 문제<b id="sC">0</b></div>
+    <div>틀린 문제<b id="sW">0</b></div>
+  </div>
+</main>
+<canvas id="fx"></canvas>
+
+<script>
+(function(){
+var NS='http://www.w3.org/2000/svg',C=200;
+var LV=[['1단계','정시'],['2단계','30분'],['3단계','5분'],['4단계','1분']];
+var level=0,cur=null,locked=false,stat={t:0,c:0,w:0},timer=null;
+var $=function(i){return document.getElementById(i)};
+var svg=$('clock');
+
+function el(n,a,p){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);(p||svg).appendChild(e);return e}
+function pt(deg,r){var a=(deg-90)*Math.PI/180;return [C+r*Math.cos(a),C+r*Math.sin(a)]}
+
+/* 시계 판 */
+el('circle',{cx:C,cy:C,r:192,fill:'#2B2B2B'});
+el('circle',{cx:C,cy:C,r:182,fill:'#FFFDF6'});
+el('circle',{cx:C,cy:C,r:176,fill:'none',stroke:'#E6DCC2','stroke-width':2});
+for(var i=0;i<60;i++){
+  var big=i%5===0,a=pt(i*6,170),b=pt(i*6,big?150:160);
+  el('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:'#2B2B2B','stroke-width':big?4:1.6,'stroke-linecap':'round'});
+}
+var mg=el('g',{id:'mg',visibility:'hidden'});
+for(var m=1;m<=12;m++){var p=pt(m*30,194+0);}
+for(var h=1;h<=12;h++){
+  var q=pt(h*30,122),t=el('text',{x:q[0],y:q[1],'text-anchor':'middle','dominant-baseline':'central','font-size':40,'font-family':"Jua,'Apple SD Gothic Neo',sans-serif",fill:'#1E1E1E'});
+  t.textContent=h;
+  var r=pt(h*30,138-0); /* 분 숫자는 눈금 안쪽 작은 글씨 */
+  var u=pt(h*30,102),mt=el('text',{x:u[0],y:u[1],'text-anchor':'middle','dominant-baseline':'central','font-size':13,'font-family':"Jua,sans-serif",fill:'#8A8576'},mg);
+  mt.textContent=h*5;
+}
+/* 귀여운 볼터치 */
+el('circle',{cx:150,cy:262,r:11,fill:'#F3D9C8',opacity:.6});
+el('circle',{cx:250,cy:262,r:11,fill:'#F3D9C8',opacity:.6});
+el('circle',{cx:176,cy:248,r:4,fill:'#2B2B2B'});
+el('circle',{cx:224,cy:248,r:4,fill:'#2B2B2B'});
+el('path',{d:'M188 258 Q200 270 212 258',fill:'none',stroke:'#2B2B2B','stroke-width':3,'stroke-linecap':'round'});
+
+/* 바늘: 시침 (짧고 굵게), 분침 (길고 가늘게) */
+var hourG=el('g',{}),minG=el('g',{});
+el('line',{x1:C,y1:C+14,x2:C,y2:C-80,stroke:'#FFFDF6','stroke-width':16,'stroke-linecap':'round'},hourG);
+el('line',{x1:C,y1:C+14,x2:C,y2:C-80,stroke:'#1E1E1E','stroke-width':11,'stroke-linecap':'round'},hourG);
+el('line',{x1:C,y1:C+18,x2:C,y2:C-136,stroke:'#FFFDF6','stroke-width':10,'stroke-linecap':'round'},minG);
+el('line',{x1:C,y1:C+18,x2:C,y2:C-136,stroke:'#1E1E1E','stroke-width':5,'stroke-linecap':'round'},minG);
+el('circle',{cx:C,cy:C,r:10,fill:'#1E1E1E'});
+el('circle',{cx:C,cy:C,r:4,fill:'#FFFDF6'});
+
+/* 핵심 각도 로직: 분침 = 분×6°, 시침 = (시%12)×30° + 분×0.5° */
+function setTime(h,m){
+  var minDeg=m*6, hourDeg=(h%12)*30+m*0.5;
+  minG.setAttribute('transform','rotate('+minDeg+' '+C+' '+C+')');
+  hourG.setAttribute('transform','rotate('+hourDeg+' '+C+' '+C+')');
+}
+function pad(n){return n<10?'0'+n:''+n}
+function say(t,good){var m=$('msg');m.textContent=t;m.className=good?'good':''}
+
+function newQ(){
+  clearTimeout(timer);locked=false;
+  var h=1+Math.floor(Math.random()*12),m=0;
+  if(level===1)m=Math.random()<.5?0:30;
+  else if(level===2)m=5*Math.floor(Math.random()*12);
+  else if(level===3)m=Math.floor(Math.random()*60);
+  if(cur&&cur.h===h&&cur.m===m)return newQ();
+  cur={h:h,m:m};setTime(h,m);
+  $('hh').value='';$('mm').value='';$('hh').disabled=$('mm').disabled=false;
+  $('check').hidden=false;$('next').hidden=true;
+  say('지금 몇 시 몇 분일까요? 짧은바늘(시침)과 긴바늘(분침)을 잘 보세요.');
+  setActive('hh');
+}
+function hint(){
+  var h=cur.h,m=cur.m,nx=h%12+1;
+  var s='💡 힌트: 긴바늘(분침)이 숫자 '+(m===0?12:Math.ceil(m/5)||12)+' 근처를 가리켜요. ';
+  if(m%5===0)s='💡 힌트: 긴바늘이 숫자 '+(m===0?12:m/5)+'를 가리키면 '+(m===0?'0':m)+'분이에요 (숫자×5). ';
+  else{var lo=Math.floor(m/5);s='💡 힌트: 긴바늘이 '+(lo===0?12:lo)+'에서 '+(m-lo*5)+'칸 더 간 곳이에요. '+(lo*5)+'분에서 '+(m-lo*5)+'칸 더하면 '+m+'분! '}
+  s+=(m===0?'짧은바늘이 '+h+'을 정확히 가리켜요.':'짧은바늘은 '+h+'와 '+nx+' 사이에서 '+h+'에 더 가까울수록 시각이 '+h+'시에 가까워요. ');
+  return s;
+}
+function check(){
+  if(locked)return;
+  var h=parseInt($('hh').value,10),m=parseInt($('mm').value,10);
+  if(isNaN(h)||isNaN(m)){say('시와 분을 모두 입력해 주세요.');return}
+  locked=true;stat.t++;
+  if(h===cur.h&&m===cur.m){
+    stat.c++;celebrate();
+    say('🎉 정답! '+cur.h+'시 '+cur.m+'분이에요. 잠시 후 다음 문제가 나와요.',true);
+    $('check').hidden=true;
+    timer=setTimeout(newQ,1800);
+  }else{
+    stat.w++;
+    say('😢 아쉬워요. 정답은 '+cur.h+'시 '+cur.m+'분('+cur.h+':'+pad(cur.m)+')이에요.\n'+hint());
+    $('msg').style.whiteSpace='pre-line';
+    $('check').hidden=true;$('next').hidden=false;$('next').focus({preventScroll:true});
+  }
+  $('sT').textContent=stat.t;$('sC').textContent=stat.c;$('sW').textContent=stat.w;
+}
+
+/* 풍선 + 폭죽 */
+var cv=$('fx'),cx=cv.getContext('2d'),parts=[],raf=0;
+function celebrate(){
+  ['🎈','🎈','🎈','🎉','🎈','✨'].forEach(function(e,i){
+    var b=document.createElement('div');b.className='balloon';b.textContent=e;
+    b.style.left=(8+i*16)+'%';b.style.animationDelay=(i*.12)+'s';
+    document.body.appendChild(b);setTimeout(function(){b.remove()},2400);
+  });
+  cv.width=innerWidth;cv.height=innerHeight;
+  [[.3,.35],[.7,.3],[.5,.5]].forEach(function(o){
+    for(var i=0;i<40;i++){var a=Math.random()*6.283,v=2+Math.random()*5;
+      parts.push({x:o[0]*cv.width,y:o[1]*cv.height,vx:Math.cos(a)*v,vy:Math.sin(a)*v,l:60,c:['#1E1E1E','#8A8576','#F0C987','#F3B5A0'][i%4]})}
+  });
+  if(!raf)raf=requestAnimationFrame(tick);
+}
+function tick(){
+  cx.clearRect(0,0,cv.width,cv.height);
+  parts=parts.filter(function(p){return p.l>0});
+  parts.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.vy+=.09;p.l--;cx.globalAlpha=p.l/60;cx.fillStyle=p.c;cx.beginPath();cx.arc(p.x,p.y,3.5,0,6.283);cx.fill()});
+  raf=parts.length?requestAnimationFrame(tick):0;
+  if(!raf)cx.clearRect(0,0,cv.width,cv.height);
+}
+
+/* 난이도 버튼 */
+LV.forEach(function(l,i){
+  var b=document.createElement('button');b.innerHTML=l[0]+'<small>'+l[1]+'</small>';
+  b.setAttribute('aria-pressed',i===0);
+  b.onclick=function(){level=i;[].forEach.call($('levels').children,function(x,j){x.setAttribute('aria-pressed',j===i)});newQ()};
+  $('levels').appendChild(b);
+});
+var act='hh';
+function setActive(id){act=id;$('hh').classList.toggle('on',id==='hh');$('mm').classList.toggle('on',id==='mm')}
+['hh','mm'].forEach(function(id){$(id).addEventListener('click',function(){setActive(id)})});
+function press(k){
+  if(locked)return;
+  var f=$(act);
+  if(k==='del'){f.value=f.value.slice(0,-1);return}
+  if(k==='sw'){setActive(act==='hh'?'mm':'hh');return}
+  var v=f.value+k,max=act==='hh'?12:59;
+  if(v.length>2||parseInt(v,10)>max)v=k;
+  f.value=v;
+  if(act==='hh'&&(v.length===2||parseInt(v,10)>1))setActive('mm');
+}
+[['1','1'],['2','2'],['3','3'],['4','4'],['5','5'],['6','6'],['7','7'],['8','8'],['9','9'],['del','⌫'],['0','0'],['sw','시↔분']].forEach(function(k){
+  var b=document.createElement('button');b.type='button';b.textContent=k[1];
+  if(isNaN(k[0]))b.className='fn';
+  b.setAttribute('aria-label',k[0]==='del'?'지우기':k[0]==='sw'?'시와 분 칸 바꾸기':k[0]);
+  b.onclick=function(){press(k[0])};
+  $('pad').appendChild(b);
+});
+$('pad').addEventListener('mousedown',function(e){e.preventDefault()});
+document.addEventListener('keydown',function(e){
+  if(/^[0-9]$/.test(e.key))press(e.key);else if(e.key==='Backspace')press('del');
+});
+$('check').onclick=check;$('next').onclick=newQ;
+$('mnum').onchange=function(){mg.setAttribute('visibility',this.checked?'visible':'hidden')};
+['hh','mm'].forEach(function(id){$(id).addEventListener('keydown',function(e){
+  if(e.key==='Enter'){if(!$('check').hidden)check();else if(!$('next').hidden)newQ()}})});
+newQ();
+})();
+</script>
+</body>
+</html>
