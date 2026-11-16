@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#10b981" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="오늘의 운동" />
+  <title>오늘의 운동 - 데일리 운동 & 습관 트래커</title>
+  <link id="manifest-link" rel="manifest" />
+  <link id="apple-icon-link" rel="apple-touch-icon" />
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-sub: #f1f5f9;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #10b981;
+      --primary-dark: #059669;
+      --primary-light: #d1fae5;
+      --accent: #3b82f6;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.06);
+      --radius: 16px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: calc(84px + var(--safe-bottom));
+      min-height: 100vh;
+    }
+
+    .app-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      background: rgba(248, 250, 252, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 14px 0 10px;
+      border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 18px;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+    }
+
+    .brand h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      height: 36px;
+      padding: 0 12px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .icon-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* Date Navigator */
+    .date-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 6px 8px;
+    }
+
+    .date-nav button {
+      background: none;
+      border: none;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      font-size: 1rem;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .date-nav button:hover {
+      background: var(--surface-sub);
+    }
+
+    .date-display {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 0.98rem;
+      cursor: pointer;
+    }
+
+    .today-badge {
+      font-size: 0.72rem;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    /* Summary Card */
+    .summary-card {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+      border-radius: var(--radius);
+      padding: 20px;
+      margin: 16px 0;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.2);
+    }
+
+    .summary-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 14px;
+    }
+
+    .summary-label {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      margin-bottom: 4px;
+    }
+
+    .summary-percent {
+      font-size: 2.1rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .streak-pill {
+      background: rgba(16, 185, 129, 0.18);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #34d399;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 10px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #34d399);
+      border-radius: 999px;
+      transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .summary-sub {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: #cbd5e1;
+    }
+
+    /* Section Title & Add Button */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 20px 0 12px;
+    }
+
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.97);
+    }
+
+    /* Workout List */
+    .workout-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .workout-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: var(--shadow);
+      transition: all 0.2s ease;
+    }
+
+    .workout-card.completed {
+      border-color: var(--primary);
+      background: #f0fdf4;
+    }
+
+    .workout-main {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .check-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 9px;
+      border: 2px solid #cbd5e1;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+    }
+
+    .workout-card.completed .check-btn {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .workout-info {
+      flex: 1;
+      min-width: 0;
+      cursor: pointer;
+    }
+
+    .workout-tags {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 3px;
+    }
+
+    .cat-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: var(--surface-sub);
+      color: var(--text-muted);
+    }
+
+    .cat-유산소 { background: #dbeafe; color: #1d4ed8; }
+    .cat-근력 { background: #fee2e2; color: #b91c1c; }
+    .cat-유연성 { background: #fef3c7; color: #b45309; }
+    .cat-기타 { background: #e2e8f0; color: #334155; }
+
+    .target-text {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .workout-name {
+      font-size: 1.02rem;
+      font-weight: 700;
+      color: var(--text);
+      word-break: keep-all;
+    }
+
+    .workout-card.completed .workout-name {
+      color: var(--primary-dark);
+    }
+
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .delete-btn:hover {
+      background: #fee2e2;
+      color: var(--danger);
+    }
+
+    /* Metric Input Row */
+    .metric-row {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .metric-label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .stepper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .step-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: var(--surface-sub);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .step-btn:active {
+      background: #e2e8f0;
+    }
+
+    .metric-input {
+      width: 72px;
+      height: 34px;
+      text-align: center;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      background: white;
+    }
+
+    .metric-unit {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      min-width: 24px;
+    }
+
+    /* Calendar & Stats View */
+    .card-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-top: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .cal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .cal-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+      text-align: center;
+    }
+
+    .cal-dow {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      padding-bottom: 4px;
+    }
+
+    .cal-cell {
+      aspect-ratio: 1;
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--surface-sub);
+      color: var(--text);
+      border: 2px solid transparent;
+      position: relative;
+    }
+
+    .cal-cell.empty {
+      background: transparent;
+      cursor: default;
+    }
+
+    .cal-cell.selected {
+      border-color: var(--text);
+    }
+
+    .cal-cell.lv1 { background: #d1fae5; color: #065f46; }
+    .cal-cell.lv2 { background: #6ee7b7; color: #064e3b; }
+    .cal-cell.lv3 { background: #10b981; color: white; }
+
+    .cal-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: currentColor;
+      margin-top: 2px;
+      opacity: 0.8;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .stat-item {
+      background: var(--surface-sub);
+      padding: 12px;
+      border-radius: 12px;
+    }
+
+    .stat-item-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .stat-item-val {
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin-top: 2px;
+      color: var(--text);
+    }
+
+    canvas#monthlyChart {
+      width: 100%;
+      height: 190px;
+      display: block;
+      margin-top: 12px;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding: 8px 16px calc(8px + var(--safe-bottom));
+      z-index: 40;
+    }
+
+    .bottom-nav-inner {
+      max-width: 600px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .nav-tab {
+      background: none;
+      border: none;
+      padding: 8px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+    }
+
+    .nav-tab.active {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.55);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 50;
+      padding: 16px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    @media (min-width: 640px) {
+      .modal-backdrop {
+        align-items: center;
+      }
+    }
+
+    .modal-sheet {
+      background: var(--surface);
+      width: 100%;
+      max-width: 460px;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      animation: slideUp 0.2s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .form-group {
+      margin-bottom: 14px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      height: 42px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 0 12px;
+      font-size: 0.95rem;
+      font-family: inherit;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .guide-step {
+      background: var(--surface-sub);
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      font-size: 0.88rem;
+    }
+
+    .guide-step strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
+    .data-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 36px 16px;
+      color: var(--text-muted);
+      background: var(--surface);
+      border-radius: var(--radius);
+      border: 1.5px dashed var(--border);
+    }
+
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confetti-canvas"></canvas>
+
+  <header>
+    <div class="app-container">
+      <div class="header-top">
+        <div class="brand">
+          <div class="brand-icon">✓</div>
+          <h1>오늘의 운동</h1>
+        </div>
+        <div class="header-actions">
+          <button class="icon-btn" onclick="openModal('pwa-modal')" title="홈 화면 추가 및 백업">
+            📲 앱 설치/백업
+          </button>
+        </div>
+      </div>
+
+      <div class="date-nav">
+        <button onclick="changeDate(-1)" aria-label="이전 날짜">◀</button>
+        <div class="date-display" onclick="goToday()">
+          <span id="current-date-text">2026년 11월 16일 (월)</span>
+          <span id="today-badge" class="today-badge">오늘</span>
+        </div>
+        <button onclick="changeDate(1)" aria-label="다음 날짜">▶</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-container">
+    <!-- TAB 1: TODAY WORKOUT -->
+    <section id="view-today">
+      <div class="summary-card">
+        <div class="summary-top">
+          <div>
+            <div class="summary-label">선택한 날짜 달성률</div>
+            <div class="summary-percent" id="summary-percent">0%</div>
+          </div>
+          <div class="streak-pill" id="streak-badge">🔥 연속 0일 달성</div>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+        </div>
+        <div class="summary-sub">
+          <span id="summary-count">0 / 0개 완료</span>
+          <span id="storage-status">💾 로컬 자동저장됨</span>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <h2 class="section-title">운동 루틴 체크리스트</h2>
+        <button class="btn-primary" onclick="openModal('add-modal')">+ 운동 추가</button>
+      </div>
+
+      <div id="workout-list" class="workout-list"></div>
+    </section>
+
+    <!-- TAB 2: CALENDAR & STATS -->
+    <section id="view-stats" style="display: none;">
+      <div class="card-box">
+        <div class="cal-header">
+          <button class="icon-btn" onclick="changeMonth(-1)">◀</button>
+          <div class="cal-title" id="cal-month-title">2026년 11월</div>
+          <button class="icon-btn" onclick="changeMonth(1)">▶</button>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+
+      <div class="card-box">
+        <h3 class="section-title">월간 누적 통계</h3>
+        <div class="stats-grid" id="monthly-stats-grid"></div>
+        <canvas id="monthlyChart"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <div class="bottom-nav-inner">
+      <button class="nav-tab active" id="tab-today" onclick="switchTab('today')">
+        <span>🏋️</span>
+        <span>오늘의 운동</span>
+      </button>
+      <button class="nav-tab" id="tab-stats" onclick="switchTab('stats')">
+        <span>📊</span>
+        <span>달력 & 통계</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Add Workout Modal -->
+  <div class="modal-backdrop" id="add-modal" onclick="closeModalOnBackdrop(event, 'add-modal')">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 class="modal-title">새 운동 항목 추가</h3>
+        <button class="icon-btn" onclick="closeModal('add-modal')">✕</button>
+      </div>
+      <form onsubmit="handleAddWorkout(event)">
+        <div class="form-group">
+          <label class="form-label">운동 이름</label>
+          <input type="text" id="input-name" class="form-control" placeholder="예: 러닝, 푸시업, 스쿼트" required />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">카테고리</label>
+            <select id="input-category" class="form-control">
+              <option value="유산소">유산소</option>
+              <option value="근력">근력</option>
+              <option value="유연성">유연성</option>
+              <option value="기타">기타</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">기록 단위</label>
+            <select id="input-unit" class="form-control">
+              <option value="개">개</option>
+              <option value="km">km</option>
+              <option value="분">분</option>
+              <option value="세트">세트</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">목표 수치</label>
+            <input type="number" id="input-target" class="form-control" step="any" min="0.1" value="30" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label">+/- 증감 간격</label>
+            <input type="number" id="input-step" class="form-control" step="any" min="0.1" value="5" required />
+          </div>
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; height: 44px; margin-top: 6px;">
+          루틴에 추가하기
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- PWA Install & Data Backup Modal -->
+  <div class="modal-backdrop" id="pwa-modal" onclick="closeModalOnBackdrop(event, 'pwa-modal')">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <h3 class="modal-title">스마트폰 홈 화면 추가 & 데이터 관리</h3>
+        <button class="icon-btn" onclick="closeModal('pwa-modal')">✕</button>
+      </div>
+
+      <div id="install-prompt-box" style="display:none; margin-bottom: 12px;">
+        <button class="btn-primary" id="btn-pwa-install" style="width:100%; justify-content:center; height:44px;">
+          📲 지금 바로 앱으로 설치하기
+        </button>
+      </div>
+
+      <div class="guide-step">
+        <strong>🍎 아이폰 (Safari) 홈 화면 추가</strong>
+        하단 중앙의 <b>공유 버튼(□↑)</b>을 누른 뒤, 아래로 스크롤하여 <b>'홈 화면에 추가'</b>를 선택하세요.
+      </div>
+      <div class="guide-step">
+        <strong>🤖 안드로이드 (Chrome) 홈 화면 추가</strong>
+        우측 상단 <b>메뉴(⋮)</b>를 누르고 <b>'홈 화면에 추가'</b> 또는 <b>'앱 설치'</b>를 선택하세요.
+      </div>
+
+      <div class="form-label" style="margin-top: 14px;">로컬 데이터 백업 및 복원 (JSON)</div>
+      <div class="data-actions">
+        <button class="icon-btn" style="justify-content: center;" onclick="exportData()">📤 데이터 내보내기</button>
+        <button class="icon-btn" style="justify-content: center;" onclick="document.getElementById('import-file').click()">📥 데이터 불러오기</button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)" />
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 1. Dynamic PWA Manifest & Icon Setup (Single-File + External Ready)
+    (function setupPWA() {
+      const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#10b981"/>
+            <stop offset="100%" stop-color="#059669"/>
+          </linearGradient>
+        </defs>
+        <rect width="512" height="512" rx="112" fill="url(#g)"/>
+        <path d="M150 264l72 72 144-156" fill="none" stroke="#ffffff" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>`;
+      const iconUrl = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgIcon);
+      document.getElementById('apple-icon-link').href = iconUrl;
+
+      const manifest = {
+        name: "오늘의 운동 - 데일리 운동 트래커",
+        short_name: "오늘의 운동",
+        description: "로컬 저장 기반 반응형 운동 기록 및 통계 PWA 앱",
+        start_url: "./",
+        display: "standalone",
+        background_color: "#f8fafc",
+        theme_color: "#10b981",
+        icons: [
+          { src: iconUrl, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
+          { src: iconUrl, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
+        ]
+      };
+
+      // Use external manifest.json when hosted over http(s), fallback to data URI when opened as local file
+      if (location.protocol === 'http:' || location.protocol === 'https:') {
+        document.getElementById('manifest-link').href = './manifest.json';
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('./sw.js').catch(() => {});
+        }
+      } else {
+        document.getElementById('manifest-link').href = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(JSON.stringify(manifest));
+      }
+    })();
+
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('install-prompt-box').style.display = 'block';
+    });
+
+    document.getElementById('btn-pwa-install')?.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      document.getElementById('install-prompt-box').style.display = 'none';
+    });
+
+    // 2. State & LocalStorage Management
+    const STORAGE_KEY = 'daily_workout_pwa_v1';
+
+    const DEFAULT_ROUTINES = [
+      { id: 'w1', name: '러닝 / 조깅', category: '유산소', target: 3, unit: 'km', step: 0.5 },
+      { id: 'w2', name: '푸시업', category: '근력', target: 50, unit: '개', step: 10 },
+      { id: 'w3', name: '스쿼트', category: '근력', target: 60, unit: '개', step: 10 },
+      { id: 'w4', name: '전신 스트레칭', category: '유연성', target: 15, unit: '분', step: 5 }
+    ];
+
+    function getLocalDateStr(dateObj = new Date()) {
+      const y = dateObj.getFullYear();
+      const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const d = String(dateObj.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          return {
+            routines: Array.isArray(parsed.routines) ? parsed.routines : DEFAULT_ROUTINES,
+            logs: parsed.logs && typeof parsed.logs === 'object' ? parsed.logs : {}
+          };
+        }
+      } catch (e) {
+        console.error('Storage read error:', e);
+      }
+      return { routines: DEFAULT_ROUTINES, logs: {} };
+    }
+
+    let appState = loadState();
+    let selectedDate = getLocalDateStr();
+    let calYear = new Date().getFullYear();
+    let calMonth = new Date().getMonth(); // 0-indexed
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+        const statusEl = document.getElementById('storage-status');
+        if (statusEl) {
+          statusEl.textContent = '💾 방금 저장됨';
+          setTimeout(() => { statusEl.textContent = '💾 로컬 자동저장됨'; }, 1200);
+        }
+      } catch (e) {
+        alert('브라우저 저장 공간이 부족하여 저장하지 못했습니다.');
+      }
+    }
+
+    function getDayLog(dateStr) {
+      if (!appState.logs[dateStr]) {
+        appState.logs[dateStr] = {};
+      }
+      return appState.logs[dateStr];
+    }
+
+    // 3. Date Navigation
+    function formatKoreanDate(dateStr) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      const dt = new Date(y, m - 1, d);
+      const days = ['일', '월', '화', '수', '목', '금', '토'];
+      return `${y}년 ${m}월 ${d}일 (${days[dt.getDay()]})`;
+    }
+
+    function changeDate(delta) {
+      const [y, m, d] = selectedDate.split('-').map(Number);
+      const dt = new Date(y, m - 1, d + delta);
+      selectedDate = getLocalDateStr(dt);
+      calYear = dt.getFullYear();
+      calMonth = dt.getMonth();
+      renderAll();
+    }
+
+    function goToday() {
+      const now = new Date();
+      selectedDate = getLocalDateStr(now);
+      calYear = now.getFullYear();
+      calMonth = now.getMonth();
+      renderAll();
+    }
+
+    // 4. Workout Actions
+    function toggleWorkout(id) {
+      const dayLog = getDayLog(selectedDate);
+      const routine = appState.routines.find(r => r.id === id);
+      if (!routine) return;
+
+      const current = dayLog[id] || { done: false, value: 0 };
+      const nextDone = !current.done;
+      const nextVal = nextDone && (!current.value || current.value === 0) ? routine.target : current.value;
+
+      dayLog[id] = { done: nextDone, value: nextVal };
+      saveState();
+      renderToday();
+
+      if (nextDone) checkAllCompletedAndCelebrate();
+    }
+
+    function updateMetric(id, delta) {
+      const dayLog = getDayLog(selectedDate);
+      const routine = appState.routines.find(r => r.id === id);
+      if (!routine) return;
+
+      const current = dayLog[id] || { done: false, value: 0 };
+      const nextVal = Math.max(0, Math.round((Number(current.value || 0) + delta) * 100) / 100);
+      const autoDone = nextVal >= routine.target ? true : current.done;
+
+      dayLog[id] = { done: autoDone, value: nextVal };
+      saveState();
+      renderToday();
+      if (!current.done && autoDone) checkAllCompletedAndCelebrate();
+    }
+
+    function setMetricDirect(id, rawVal) {
+      const dayLog = getDayLog(selectedDate);
+      const routine = appState.routines.find(r => r.id === id);
+      if (!routine) return;
+
+      const val = Math.max(0, parseFloat(rawVal) || 0);
+      const current = dayLog[id] || { done: false, value: 0 };
+      const autoDone = val >= routine.target ? true : current.done;
+
+      dayLog[id] = { done: autoDone, value: val };
+      saveState();
+      renderToday();
+      if (!current.done && autoDone) checkAllCompletedAndCelebrate();
+    }
+
+    function handleAddWorkout(e) {
+      e.preventDefault();
+      const name = document.getElementById('input-name').value.trim();
+      const category = document.getElementById('input-category').value;
+      const unit = document.getElementById('input-unit').value;
+      const target = parseFloat(document.getElementById('input-target').value) || 1;
+      const step = parseFloat(document.getElementById('input-step').value) || 1;
+
+      if (!name) return;
+
+      appState.routines.push({
+        id: 'w_' + Date.now(),
+        name,
+        category,
+        target,
+        unit,
+        step
+      });
+
+      saveState();
+      e.target.reset();
+      document.getElementById('input-target').value = '30';
+      document.getElementById('input-step').value = '5';
+      closeModal('add-modal');
+      renderAll();
+    }
+
+    function deleteWorkout(id) {
+      if (!confirm('이 운동 항목을 루틴에서 삭제할까요?')) return;
+      appState.routines = appState.routines.filter(r => r.id !== id);
+      saveState();
+      renderAll();
+    }
+
+    // 5. Streak & Progress Calculation
+    function calculateStreak() {
+      if (appState.routines.length === 0) return 0;
+      let streak = 0;
+      const now = new Date();
+
+      for (let i = 0; i < 365; i++) {
+        const dt = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+        const key = getLocalDateStr(dt);
+        const log = appState.logs[key] || {};
+        const completedCount = appState.routines.filter(r => log[r.id]?.done).length;
+
+        if (completedCount === appState.routines.length && completedCount > 0) {
+          streak++;
+        } else if (i === 0) {
+          // Today not yet finished doesn't break yesterday's streak
+          continue;
+        } else {
+          break;
+        }
+      }
+      return streak;
+    }
+
+    // 6. Render Today View
+    function renderToday() {
+      const todayStr = getLocalDateStr();
+      document.getElementById('current-date-text').textContent = formatKoreanDate(selectedDate);
+      document.getElementById('today-badge').style.display = selectedDate === todayStr ? 'inline-block' : 'none';
+
+      const listEl = document.getElementById('workout-list');
+      const dayLog = appState.logs[selectedDate] || {};
+      const total = appState.routines.length;
+      let completed = 0;
+
+      if (total === 0) {
+        listEl.innerHTML = `<div class="empty-state">등록된 운동이 없습니다.<br/>우측 상단 <b>+ 운동 추가</b> 버튼으로 나만의 루틴을 만들어보세요!</div>`;
+      } else {
+        listEl.innerHTML = appState.routines.map(item => {
+          const entry = dayLog[item.id] || { done: false, value: 0 };
+          if (entry.done) completed++;
+
+          return `
+            <div class="workout-card ${entry.done ? 'completed' : ''}">
+              <div class="workout-main">
+                <button class="check-btn" onclick="toggleWorkout('${item.id}')" aria-label="완료 체크">
+                  ${entry.done ? '✓' : ''}
+                </button>
+                <div class="workout-info" onclick="toggleWorkout('${item.id}')">
+                  <div class="workout-tags">
+                    <span class="cat-badge cat-${item.category}">${item.category}</span>
+                    <span class="target-text">목표: ${item.target}${item.unit}</span>
+                  </div>
+                  <div class="workout-name">${escapeHtml(item.name)}</div>
+                </div>
+                <button class="delete-btn" onclick="deleteWorkout('${item.id}')" title="삭제">✕</button>
+              </div>
+              <div class="metric-row">
+                <span class="metric-label">오늘 기록 수치</span>
+                <div class="stepper">
+                  <button class="step-btn" onclick="updateMetric('${item.id}', -${item.step})">-</button>
+                  <input type="number" class="metric-input" step="any" min="0"
+                    value="${entry.value || 0}"
+                    onchange="setMetricDirect('${item.id}', this.value)" />
+                  <button class="step-btn" onclick="updateMetric('${item.id}', ${item.step})">+</button>
+                  <span class="metric-unit">${item.unit}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+      document.getElementById('summary-percent').textContent = `${pct}%`;
+      document.getElementById('progress-fill').style.width = `${pct}%`;
+      document.getElementById('summary-count').textContent = `${completed} / ${total}개 완료`;
+      document.getElementById('streak-badge').textContent = `🔥 연속 ${calculateStreak()}일 달성`;
+    }
+
+    // 7. Render Calendar & Monthly Stats
+    function changeMonth(delta) {
+      const dt = new Date(calYear, calMonth + delta, 1);
+      calYear = dt.getFullYear();
+      calMonth = dt.getMonth();
+      renderStats();
+    }
+
+    function renderStats() {
+      document.getElementById('cal-month-title').textContent = `${calYear}년 ${calMonth + 1}월`;
+      const gridEl = document.getElementById('cal-grid');
+      const dows = ['일', '월', '화', '수', '목', '금', '토'];
+      let html = dows.map(d => `<div class="cal-dow">${d}</div>`).join('');
+
+      const firstDay = new Date(calYear, calMonth, 1).getDay();
+      const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+      for (let i = 0; i < firstDay; i++) {
+        html += `<div class="cal-cell empty"></div>`;
+      }
+
+      const totalRoutines = Math.max(1, appState.routines.length);
+      let activeDays = 0;
+      let perfectDays = 0;
+      const dailyRates = [];
+      const unitTotals = {};
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const log = appState.logs[dateStr] || {};
+        const doneCount = appState.routines.filter(r => log[r.id]?.done).length;
+        const rate = appState.routines.length > 0 ? Math.round((doneCount / totalRoutines) * 100) : 0;
+        dailyRates.push({ day, rate });
+
+        if (doneCount > 0) activeDays++;
+        if (doneCount === appState.routines.length && doneCount > 0) perfectDays++;
+
+        appState.routines.forEach(r => {
+          const val = Number(log[r.id]?.value || 0);
+          if (val > 0) {
+            unitTotals[r.unit] = (unitTotals[r.unit] || 0) + val;
+          }
+        });
+
+        let lvClass = '';
+        if (rate === 100) lvClass = 'lv3';
+        else if (rate >= 50) lvClass = 'lv2';
+        else if (rate > 0) lvClass = 'lv1';
+
+        const isSelected = dateStr === selectedDate ? 'selected' : '';
+        html += `
+          <div class="cal-cell ${lvClass} ${isSelected}" onclick="selectDateFromCalendar('${dateStr}')">
+            <span>${day}</span>
+            ${doneCount > 0 ? '<span class="cal-dot"></span>' : ''}
+          </div>
+        `;
+      }
+
+      gridEl.innerHTML = html;
+
+      // Summary Stat Cards
+      const statCards = [
+        { label: '운동 실천일', val: `${activeDays}일` },
+        { label: '100% 완주일', val: `${perfectDays}일` }
+      ];
+      Object.entries(unitTotals).forEach(([unit, sum]) => {
+        const formatted = Math.round(sum * 100) / 100;
+        statCards.push({ label: `누적 기록 (${unit})`, val: `${formatted}${unit}` });
+      });
+
+      document.getElementById('monthly-stats-grid').innerHTML = statCards.map(s => `
+        <div class="stat-item">
+          <div class="stat-item-label">${s.label}</div>
+          <div class="stat-item-val">${s.val}</div>
+        </div>
+      `).join('');
+
+      drawMonthlyChart(dailyRates);
+    }
+
+    function selectDateFromCalendar(dateStr) {
+      selectedDate = dateStr;
+      switchTab('today');
+    }
+
+    function drawMonthlyChart(dailyRates) {
+      const canvas = document.getElementById('monthlyChart');
+      if (!canvas) return;
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+      const w = rect.width;
+      const h = rect.height;
+
+      ctx.clearRect(0, 0, w, h);
+
+      const padLeft = 28;
+      const padBottom = 22;
+      const padTop = 14;
+      const chartW = w - padLeft - 8;
+      const chartH = h - padTop - padBottom;
+
+      // Grid lines
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 1;
+      ctx.font = '10px sans-serif';
+      ctx.fillStyle = '#94a3b8';
+
+      [0, 50, 100].forEach(val => {
+        const y = padTop + chartH - (val / 100) * chartH;
+        ctx.beginPath();
+        ctx.moveTo(padLeft, y);
+        ctx.lineTo(w - 8, y);
+        ctx.stroke();
+        ctx.fillText(`${val}%`, 0, y + 3);
+      });
+
+      // Bars
+      const count = dailyRates.length;
+      const barGap = 2;
+      const barW = Math.max(2, (chartW / count) - barGap);
+
+      dailyRates.forEach((item, idx) => {
+        const x = padLeft + idx * (barW + barGap);
+        const barH = (item.rate / 100) * chartH;
+        const y = padTop + chartH - barH;
+
+        ctx.fillStyle = item.rate === 100 ? '#10b981' : (item.rate > 0 ? '#6ee7b7' : '#e2e8f0');
+        ctx.beginPath();
+        ctx.roundRect(x, Math.max(padTop, y), barW, Math.max(2, barH), 2);
+        ctx.fill();
+
+        if (item.day === 1 || item.day % 5 === 0) {
+          ctx.fillStyle = '#64748b';
+          ctx.fillText(String(item.day), x, h - 6);
+        }
+      });
+    }
+
+    // 8. Tabs, Modals, Export/Import & Confetti
+    function switchTab(tab) {
+      document.getElementById('view-today').style.display = tab === 'today' ? 'block' : 'none';
+      document.getElementById('view-stats').style.display = tab === 'stats' ? 'block' : 'none';
+      document.getElementById('tab-today').classList.toggle('active', tab === 'today');
+      document.getElementById('tab-stats').classList.toggle('active', tab === 'stats');
+      if (tab === 'stats') renderStats();
+      else renderToday();
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    function closeModalOnBackdrop(e, id) {
+      if (e.target.id === id) closeModal(id);
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(appState, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `workout-backup-${getLocalDateStr()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function importData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const parsed = JSON.parse(ev.target.result);
+          if (Array.isArray(parsed.routines) && typeof parsed.logs === 'object') {
+            appState = parsed;
+            saveState();
+            renderAll();
+            alert('데이터가 성공적으로 복원되었습니다!');
+            closeModal('pwa-modal');
+          } else {
+            alert('올바른 백업 파일 형식이 아닙니다.');
+          }
+        } catch {
+          alert('파일을 읽는 중 오류가 발생했습니다.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+    }
+
+    function checkAllCompletedAndCelebrate() {
+      const log = appState.logs[selectedDate] || {};
+      const total = appState.routines.length;
+      const done = appState.routines.filter(r => log[r.id]?.done).length;
+      if (total > 0 && done === total) {
+        launchConfetti();
+      }
+    }
+
+    function launchConfetti() {
+      const canvas = document.getElementById('confetti-canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      const colors = ['#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6'];
+      const particles = Array.from({ length: 70 }, () => ({
+        x: canvas.width / 2,
+        y: canvas.height * 0.4,
+        vx: (Math.random() - 0.5) * 12,
+        vy: (Math.random() - 0.8) * 12,
+        size: Math.random() * 7 + 4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        life: 70
+      }));
+
+      function frame() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let alive = false;
+        particles.forEach(p => {
+          if (p.life <= 0) return;
+          alive = true;
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.35;
+          p.life--;
+          ctx.fillStyle = p.color;
+          ctx.fillRect(p.x, p.y, p.size, p.size);
+        });
+        if (alive) requestAnimationFrame(frame);
+        else ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      frame();
+    }
+
+    function renderAll() {
+      renderToday();
+      if (document.getElementById('view-stats').style.display !== 'none') {
+        renderStats();
+      }
+    }
+
+    renderAll();
+  </script>
+</body>
+</html>
